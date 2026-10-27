@@ -1,2 +1,166 @@
-# enterprise-fleet-management-showcase
-🏍️ Production Architecture Showcase &amp; Engineering Case Study of an Enterprise Fleet, Rental Agreements &amp; Financial ERP in the UK (Python, Flask, PostgreSQL, GCP, PWA).
+# 🏍️ Enterprise Fleet & Rental Operations Platform (UK Market)
+### Architecture Showcase & Engineering Case Study
+
+<div align="center">
+
+[![Status](https://img.shields.io/badge/Status-Active_Production_System-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Hosting](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
+[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-brightgreen?style=for-the-badge)](#)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+[![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)](#)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-336791?style=for-the-badge&logo=postgresql&logoColor=white)](#)
+[![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy_%26_SSL-009639?style=for-the-badge&logo=nginx&logoColor=white)](#)
+[![Compliance](https://img.shields.io/badge/UK_Compliance-DVLA_%7C_MOT_%7C_askMID-blue?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-Proprietary_%2F_Showcase_Only-red?style=for-the-badge)](#)
+
+<br/>
+
+> 🔒 **Proprietary Commercial System Notice**:  
+> This repository serves as an **Architecture Showcase, Engineering Documentation, and Case Study**.  
+> The underlying production codebase, private schemas, and business integrations are proprietary property operating in live commercial production in Birmingham, United Kingdom.
+
+</div>
+
+---
+
+## 📌 Executive Overview
+
+This enterprise system was engineered to solve the complex operational and financial challenges of commercial motorcycle fleet operators in the United Kingdom. 
+
+Operating under heavy daily commercial traffic on **Google Cloud Platform (GCP)** with an internal endpoint latency of **~3.9ms**, the platform automates:
+* Multi-tier vehicle rental agreements, rent-to-buy sales agreements, and dealership trade-in acquisitions.
+* Recurring weekly billing engines with automated debt escalation and payment reconciliation.
+* Mobile-first Progressive Web App (PWA) digital yard inspections with client-side image compression.
+* Automated WhatsApp reminders via an anti-ban Baileys microservice.
+* British statutory compliance (DVLA SORN, MOT test schedules, and bi-weekly askMID insurance verification).
+
+---
+
+## 🏛️ High-Level System Architecture
+
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["Client & PWA Layer"]
+        A1["Mobile PWA (iOS Safari / Android)"]
+        A2["Desktop Web Dashboard"]
+        A3["Client-side Image Compressor (WebP/Canvas)"]
+    end
+
+    subgraph EdgeLayer ["Edge & Security Layer (GCP)"]
+        B1["Cloudflare / HTTPS (TLS 1.3)"]
+        B2["Nginx Reverse Proxy & Hidden File Armor (403)"]
+        B3["Static Cache & Media RBAC Filter"]
+    end
+
+    subgraph AppLayer ["Application & WSGI Engine"]
+        C1["Gunicorn Process Workers"]
+        C2["Flask 3.0 Core Application"]
+        C3["APScheduler Autonomous Engine (01:00 AM / 07:45 AM / 08:00 AM)"]
+        C4["Audit Trail Interceptor & RBAC Decorators"]
+    end
+
+    subgraph ServiceLayer ["Async Services & Integrations"]
+        D1["Evolution API (Baileys Engine / Docker)"]
+        D2["Anti-Ban Jitter & WhatsApp Dispatch Queue"]
+        D3["DVLA / askMID Compliance Tracker"]
+        D4["Disaster Recovery & WAL Snapshotter"]
+    end
+
+    subgraph StorageLayer ["Database & File Vault"]
+        E1[("PostgreSQL 14 (Dedicated 127.0.0.1)")]
+        E2["Sandboxed File Vault (V5C, Licences, Contracts)"]
+    end
+
+    A1 & A2 --> B1
+    A3 --> A1
+    B1 --> B2
+    B2 --> C1
+    C1 --> C2
+    C2 --> C4
+    C2 --> E1
+    C2 --> E2
+    C3 --> C2
+    C3 --> D2
+    D2 --> D1
+    C2 --> D3
+    C3 --> D4
+    D4 --> E1
+```
+
+---
+
+## 💡 Key Engineering Challenges & Solutions
+
+### 1. Eliminating Race Conditions in Recurring Billing
+* **The Problem:** In a multi-worker WSGI cloud environment (Gunicorn), autonomous recurring billing tasks scheduled at 01:00 AM risk executing concurrently on multiple worker processes, resulting in catastrophic double-billing.
+* **The Solution:** Implemented a two-phase concurrency shield:
+  1. Operating-system level file locks (`fcntl.flock`) on POSIX lockfiles.
+  2. Database-backed atomic conditional update locks (`JobExecutionLock`) ensuring that daily billing routines execute strictly once per calendar day regardless of server reboots or multiple worker triggers.
+
+### 2. High-Density Database & Zero Cold-Start Latency
+* **The Problem:** Cloud database instances often suffer from morning "cold starts" where initial operator queries experience high I/O wait times as data pages are loaded from disk to RAM.
+* **The Solution:** 
+  * Tuned Linux OS kernel parameters (`vm.swappiness = 10`) on Ubuntu Jammy (Kernel 6.8 GCP) to prioritize RAM residency for PostgreSQL and Gunicorn processes.
+  * Engineered an autonomous **Morning Warm-Up Worker** scheduled at 07:45 AM Europe/London (15 minutes prior to automated messaging and 1h15m prior to store opening) to pre-warm PostgreSQL connection pools and populate frequently accessed fleet and contract ledgers into `shared_buffers`, achieving **<100ms first-response times** for operators.
+
+### 3. WhatsApp Messaging Gateway with Anti-Ban Protection
+* **The Problem:** Automated financial reminders over WhatsApp are susceptible to instant telephone number bans by Meta algorithms if dispatched with rigid cadence or duplicate payloads.
+* **The Solution:**
+  * Containerized Baileys engine (Evolution API v2) connected via isolated Docker instances.
+  * Humanized anti-ban suite incorporating dynamic Spintax rotation (British English phrasing), simulated `composing...` typing states, and randomized jitter delays (15–30 seconds).
+  * Two-phase atomic dispatch reservations (`status='DISPATCHING'`) preventing worker collisions, with automatic 10-minute zombie lock reclamation.
+  * Multi-tier silencing hierarchy: Operators can snooze specific charges (`+3`, `+7`, `+14 days`), mute individual contracts, or silence VIP customers.
+
+### 4. Bandwidth Optimization for Field Yard Inspections
+* **The Problem:** Yard staff upload high-resolution camera photos (5–12MB each) during vehicle intake and check-out, quickly choking cellular 4G/5G connections and inflating cloud storage costs.
+* **The Solution:** Implemented client-side image compression via HTML5 Canvas and Web Workers (`browser-image-compression`). Images are compressed and converted into lightweight WebP format directly inside the mobile browser before upload, slashing payload size by **~85%** while maintaining crisp visual resolution for inspection dispute audits.
+
+### 5. UK Regulatory & Legal Compliance
+* **DVLA & askMID Verification:** Automatic 15-day recurring checks against the government insurance database (`askMID`), with automatic exemption for vehicles officially declared off-road via **DVLA SORN** (`tax_sorn = True`).
+* **Paperless Legal Agreements:** Dynamically compiled agreements under English Law featuring touch-canvas signature pads, frozen corporate legal snapshots, and irrevocable claims authority clauses formatted for pixel-perfect single or multi-page A4 printing.
+* **UK Road Signage Authenticity:** Integrated BS AU 145e standard reflective yellow rear plates (`#fde047`) across all mobile and desktop interfaces.
+
+---
+
+## 🛠️ Technology Stack Breakdown
+
+| Domain | Technology / Architecture |
+|---|---|
+| **Backend Framework** | Python 3.10+, Flask 3.0, Flask-Login, Flask-SQLAlchemy, SQLAlchemy 2.0 |
+| **WSGI & Application Server** | Gunicorn (Linux Multi-Worker) with Waitress fallback for local environments |
+| **Database Engine** | PostgreSQL 14 (Production with connection pooling) & SQLite 3 (Development WAL mode) |
+| **Edge & Web Proxy** | Nginx with TLS 1.3, CSP sandbox, and automated `.env`/`.git` 403 border shields |
+| **Cloud Hosting** | Google Cloud Platform (GCP) Compute Engine with automated nightly disk snapshots |
+| **Background Scheduling** | APScheduler (Autonomous background daemon for billing, media pruning, and warm-ups) |
+| **Messaging Infrastructure** | Evolution API v2 (Docker / Baileys WebSocket engine) |
+| **Frontend & Mobile UI** | Vanilla ES6+ JavaScript, CSS Dark Glassmorphism Design System, Installable PWA |
+| **Security & Auditing** | Comprehensive HMAC CSRF, NIST-compliant credential policies, Full Activity Audit Trail |
+
+---
+
+## 📈 Architecture Highlights & Impact
+
+* ⚡ **~3.9ms Internal API Response Time**: Heavily indexed queries, eager-loading with `joinedload`, and elimination of N+1 bottlenecks.
+* 🛡️ **Zero Unhandled Financial Drift**: Bi-directional ledger linking, partial settlement child transactions (`⚡ Bal #ID`), and automated reversal reconciliation.
+* 📑 **100% Audit Traceability**: Mandatory vehicle plate and customer name tagging across all state-altering events (`AuditLog`).
+* 🔒 **UK GDPR Compliance**: Sandboxed file uploads with strict `@login_required` verification, private cache headers, and client-side session timeout shields.
+
+---
+
+## 👤 Engineered By
+
+**Thiago Brandão**  
+*Solutions Architect • Full-Stack Systems Engineer • Data Specialist*  
+📍 Birmingham, England, United Kingdom 🇬🇧
+
+* 🌐 Website: **[ErroZero-Website](https://tmuniz570.github.io/ErroZero-Website/)**
+* 📁 HyperionDev: **[Portfolio Profile](https://www.hyperiondev.com/portfolio/101782/)**
+* 💼 LinkedIn: **[linkedin.com/in/tmuniz570](https://www.linkedin.com/in/tmuniz570)**
+* 📧 Email: **[tmuniz570@gmail.com](mailto:tmuniz570@gmail.com)**
+* 🐙 GitHub: **[@tmuniz570](https://github.com/tmuniz570)**
+
+---
+
+<div align="center">
+  <sub>Copyright © 2026 Thiago Brandão. All architectural specifications and engineering implementations reserved.</sub>
+</div>
