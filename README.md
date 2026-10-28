@@ -48,8 +48,9 @@ flowchart TD
 
     subgraph EdgeLayer ["Edge & Security Layer (GCP)"]
         B1["Cloudflare / HTTPS (TLS 1.3)"]
-        B2["Nginx Reverse Proxy & Hidden File Armor (403)"]
-        B3["Static Cache & Media RBAC Filter"]
+        B2["Nginx Edge Defense & Scanner Shield (404/403)"]
+        B3["Hidden File Armor & Malicious User-Agent Firewall"]
+        B4["Static Cache & Media RBAC Filter"]
     end
 
     subgraph AppLayer ["Application & WSGI Engine"]
@@ -119,6 +120,12 @@ flowchart TD
 * **DVLA & askMID Verification:** Automatic 15-day recurring checks against the government insurance database (`askMID`), with automatic exemption for vehicles officially declared off-road via **DVLA SORN** (`tax_sorn = True`).
 * **Paperless Legal Agreements:** Dynamically compiled agreements under English Law featuring touch-canvas signature pads, frozen corporate legal snapshots, and irrevocable claims authority clauses formatted for pixel-perfect single or multi-page A4 printing.
 * **UK Road Signage Authenticity:** Integrated BS AU 145e standard reflective yellow rear plates (`#fde047`) across all mobile and desktop interfaces.
+
+### 6. Edge Hardening & Automated Scanner Defense-in-Depth
+* **The Problem:** Cloud compute endpoints constantly receive internet background radiation—automated bots, exploit probes (e.g. Microsoft Exchange OWA, WordPress, phpMyAdmin), and vulnerability scanners. When unrecognized URLs redirect to the login page by default, automated bots can flood the authentication endpoint with blind credential submissions.
+* **The Solution:** Implemented a multi-tier defense architecture:
+  * **Edge Layer (Nginx):** Immediate `HTTP 403 Forbidden` drop for malicious scanning User-Agents (`got`, `zgrab`, `masscan`, `nikto`, etc.) and a silent sub-millisecond `HTTP 404 Not Found` (`access_log off`) for classic vulnerability probe endpoints (`/owa`, `/wp-admin`, etc.), consuming zero application memory or CPU cycles.
+  * **Application Routing (Flask):** The authentication hook verifies route existence against the application routing table before redirecting unauthenticated requests. Unrecognized paths (`request.endpoint is None`) immediately abort with `404 Not Found` rather than exposing the login view, while legitimate operational URLs safely redirect to login.
 
 ---
 
