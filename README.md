@@ -116,9 +116,10 @@ flowchart TD
 * **The Problem:** Yard staff upload high-resolution camera photos (5–12MB each) during vehicle intake and check-out, quickly choking cellular 4G/5G connections and inflating cloud storage costs.
 * **The Solution:** Implemented client-side image compression via HTML5 Canvas and Web Workers (`browser-image-compression`). Images are compressed and converted into lightweight WebP format directly inside the mobile browser before upload, slashing payload size by **~85%** while maintaining crisp visual resolution for inspection dispute audits.
 
-### 5. UK Regulatory & Legal Compliance
+### 5. UK Regulatory & Legal Compliance & Remote Mobile Signing Portal
 * **DVLA & askMID Verification:** Automatic 15-day recurring checks against the government insurance database (`askMID`), with automatic exemption for vehicles officially declared off-road via **DVLA SORN** (`tax_sorn = True`).
-* **Paperless Legal Agreements:** Dynamically compiled agreements under English Law featuring touch-canvas signature pads, frozen corporate legal snapshots, and irrevocable claims authority clauses formatted for pixel-perfect single or multi-page A4 printing.
+* **Paperless Legal Agreements & Remote WhatsApp Signing (`/assinar/<token>`):** Dynamically compiled agreements under English Law (*Electronic Communications Act 2000, s.7* & *UK eIDAS*) featuring 1-hour cryptographic signing links (`secrets.token_urlsafe(32)`), embedded full agreement review, explicit legal consent gating, touch-canvas signature pads, and tamper-proof post-signature locks (`HTTP 409 Conflict`) with instant PDF execution receipts.
+* **Forensic Audit Trail & Zero-Trust Base64 Media Delivery (UK GDPR):** Automatically records the signer's public IP (`X-Forwarded-For`), device `User-Agent`, and `Europe/London` timestamp while freezing an immutable customer/vehicle snapshot. Private uploads (`/static/uploads/`) remain strictly behind `@login_required` (`302 Redirect`), while customer verification documents and signatures are injected inline as Base64 Data URIs (`data:image/...;base64,...`) with zero secondary HTTP requests.
 * **UK Road Signage Authenticity:** Integrated BS AU 145e standard reflective yellow rear plates (`#fde047`) across all mobile and desktop interfaces.
 
 ### 6. Edge Hardening & Automated Scanner Defense-in-Depth
