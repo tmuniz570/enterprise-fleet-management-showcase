@@ -56,7 +56,7 @@ flowchart TD
     subgraph AppLayer ["Application & WSGI Engine"]
         C1["Gunicorn Process Workers"]
         C2["Flask 3.0 Core Application"]
-        C3["APScheduler Autonomous Engine (01:00 AM / 07:45 AM / 08:00 AM)"]
+        C3["APScheduler Autonomous Engine (01:00 AM / 07:45 AM / 08:00 AM / 09:00 AM)"]
         C4["Audit Trail Interceptor & RBAC Decorators"]
     end
 
@@ -111,6 +111,7 @@ flowchart TD
   * Humanized anti-ban suite incorporating dynamic Spintax rotation (British English phrasing), simulated `composing...` typing states, and randomized jitter delays (15–30 seconds).
   * Two-phase atomic dispatch reservations (`status='DISPATCHING'`) preventing worker collisions, with automatic 10-minute zombie lock reclamation.
   * Multi-tier silencing hierarchy: Operators can snooze specific charges (`+3`, `+7`, `+14 days`), mute individual contracts, or silence VIP customers.
+  * **Internal Operations Alerting & Deposit Hold Quarantine Monitoring:** Automated daily routine (09:00 AM Europe/London) tracking returned vehicle rental agreements in 14-day security deposit quarantine (`Deposit_Hold`). Proactively alerts fleet management via WhatsApp whenever a quarantine completes 14+ days with an unrefunded deposit, prompting inspection sign-off and eliminating delayed customer deposit refunds.
 
 ### 4. Bandwidth Optimization for Field Yard Inspections
 * **The Problem:** Yard staff upload high-resolution camera photos (5–12MB each) during vehicle intake and check-out, quickly choking cellular 4G/5G connections and inflating cloud storage costs.
