@@ -154,7 +154,7 @@ flowchart TD
 
 * ⚡ **~3.9ms Internal API Response Time**: Heavily indexed queries, eager-loading with `joinedload`, and elimination of N+1 bottlenecks.
 * 🛡️ **Zero Unhandled Financial Drift**: Bi-directional ledger linking, partial settlement child transactions (`⚡ Bal #ID`), and automated reversal reconciliation.
-* 📑 **100% Audit Traceability**: Mandatory vehicle plate and customer name tagging across all state-altering events (`AuditLog`).
+* 📑 **100% Granular Audit Traceability & Asset Indexing**: High-performance B-tree indexed entity tracking (`placa`, `id_contrato`, `cliente_nome`) across all state-altering events (`AuditLog`), supporting 1-click interactive asset filtering, sub-millisecond lookups, and multi-column compliance exports.
 * 🔒 **UK GDPR Compliance**: Sandboxed file uploads with strict `@login_required` verification, private cache headers, and client-side session timeout shields.
 
 ---
