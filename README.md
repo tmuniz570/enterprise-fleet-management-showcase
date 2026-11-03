@@ -1,178 +1,265 @@
-# 🏍️ Enterprise Fleet & Rental Operations Platform (UK Market)
-### Architecture Showcase & Engineering Case Study
+# 🏍️ Enterprise Fleet, FinTech Ledger & AI Operations Platform (UK Market)
+### Production Architecture Showcase & Systems Engineering Case Study
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Active_Production_System-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
-[![Hosting](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
-[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-brightgreen?style=for-the-badge)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.101)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
+[![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
-[![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)](#)
+[![Flask](https://img.shields.io/badge/Flask-3.0_(WSGI)-000000?style=for-the-badge&logo=flask&logoColor=white)](#)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-336791?style=for-the-badge&logo=postgresql&logoColor=white)](#)
-[![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy_%26_SSL-009639?style=for-the-badge&logo=nginx&logoColor=white)](#)
-[![Compliance](https://img.shields.io/badge/UK_Compliance-DVLA_%7C_MOT_%7C_askMID-blue?style=for-the-badge)](#)
-[![License](https://img.shields.io/badge/License-Proprietary_%2F_Showcase_Only-red?style=for-the-badge)](#)
+[![Nginx](https://img.shields.io/badge/Nginx-Edge_Security_%26_TLS_1.3-009639?style=for-the-badge&logo=nginx&logoColor=white)](#)
+[![UK Compliance](https://img.shields.io/badge/UK_Law-DVLA_%7C_MOT_%7C_askMID_%7C_eIDAS_%7C_GDPR-0A3161?style=for-the-badge)](#)
 
 <br/>
 
-> 🔒 **Proprietary Commercial System Notice**:  
-> This repository serves as an **Architecture Showcase, Engineering Documentation, and Case Study**.  
-> The underlying production codebase, private schemas, and business integrations are proprietary property operating in live commercial production in Birmingham, United Kingdom.
+> 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
+> This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **100+ iterative production releases**.
 
 </div>
 
 ---
 
-## 📌 Executive Overview
+## 🎯 Executive Summary (The 30-Second Overview)
 
-This enterprise system was engineered to solve the complex operational and financial challenges of commercial motorcycle fleet operators in the United Kingdom. 
+Commercial motorcycle rental and rent-to-buy dealerships in the United Kingdom operate at the intersection of **high-frequency recurring billing**, **strict British statutory vehicle compliance (DVLA, MOT, askMID, PCNs)**, **physical yard inspections**, and **legal contract enforcement**. Off-the-shelf CRMs fail to unify these workflows, leading to revenue leakage, double-billing bugs, compliance fines, and manual spreadsheet chaos.
 
-Operating under heavy daily commercial traffic on **Google Cloud Platform (GCP)** with an internal endpoint latency of **~3.9ms**, the platform automates:
-* Multi-tier vehicle rental agreements, rent-to-buy sales agreements, and dealership trade-in acquisitions.
-* Recurring weekly billing engines with automated debt escalation and payment reconciliation.
-* Mobile-first Progressive Web App (PWA) digital yard inspections with client-side image compression.
-* Automated WhatsApp reminders via an anti-ban Baileys microservice.
-* British statutory compliance (DVLA SORN, MOT test schedules, and bi-weekly askMID insurance verification).
+This platform is a **custom-engineered, full-stack Enterprise Resource Planning (ERP) & FinTech Operational System** built from the ground up in **Python (Flask 3.0)** and **PostgreSQL 14**, hosted on **Google Cloud Platform (GCP)** behind hardened **Nginx** edge proxies, and augmented by an autonomous **Google Gemini 3.5 Flash Executive AI Copilot** with a zero-trust **Read-Only Text-to-SQL Engine** and **Multimodal OCR**.
+
+### 📊 Production Scale & Engineering Benchmarks
+
+| Engineering Metric | Production Benchmark | Architectural Driver |
+| :--- | :--- | :--- |
+| **Active Commercial Scale** | **150+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Maintenance`, `Claim`, `Sold`, `Decommissioned`) |
+| **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
+| **Production Maturity** | **v1.9.101 (101 Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **20+ Specialized Test Suites** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
+| **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
+| **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
 
 ---
 
-## 🏛️ High-Level System Architecture
+## 🏛️ 1. High-Level Cloud & System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer ["Client & PWA Layer"]
-        A1["Mobile PWA (iOS Safari / Android)"]
-        A2["Desktop Web Dashboard"]
-        A3["Client-side Image Compressor (WebP/Canvas)"]
+    subgraph ClientLayer ["📱 Client & Mobile PWA Layer"]
+        A1["Mobile PWA (iOS Safari / Android Touch UI)"]
+        A2["Desktop Executive ERP & 75vw AI Drawer"]
+        A3["Client-Side WebP Compressor (Canvas / Web Workers)"]
     end
 
-    subgraph EdgeLayer ["Edge & Security Layer (GCP)"]
-        B1["Cloudflare / HTTPS (TLS 1.3)"]
-        B2["Nginx Edge Defense & Scanner Shield (404/403)"]
-        B3["Hidden File Armor & Malicious User-Agent Firewall"]
-        B4["Static Cache & Media RBAC Filter"]
+    subgraph EdgeLayer ["🛡️ Edge Security & Proxy Layer (GCP)"]
+        B1["Cloudflare DNS & TLS 1.3 Termination"]
+        B2["Nginx Reverse Proxy & Scanner Shield (403/404 Drop)"]
+        B3["Static Asset Cache & Zero-Trust Media Gatekeeper"]
     end
 
-    subgraph AppLayer ["Application & WSGI Engine"]
-        C1["Gunicorn Process Workers"]
-        C2["Flask 3.0 Core Application"]
-        C3["APScheduler Autonomous Engine (01:00 AM / 07:45 AM / 08:00 AM / 09:00 AM)"]
-        C4["Audit Trail Interceptor & RBAC Decorators"]
+    subgraph AppLayer ["⚙️ Application & Autonomous Worker Layer"]
+        C1["Gunicorn Multi-Worker WSGI Server"]
+        C2["Flask 3.0 Core ERP & FinTech Ledger Engine"]
+        C3["APScheduler Autonomous Daemon (01:00 / 07:45 / 08:00 / 09:00 UK)"]
+        C4["POSIX fcntl.flock & DB JobExecutionLock Shield"]
+        C5["Granular RBAC & B-Tree Forensic Audit Interceptor"]
     end
 
-    subgraph ServiceLayer ["Async Services & Integrations"]
-        D1["Evolution API (Baileys Engine / Docker)"]
-        D2["Anti-Ban Jitter & WhatsApp Dispatch Queue"]
-        D3["DVLA / askMID Compliance Tracker"]
-        D4["Disaster Recovery & WAL Snapshotter"]
+    subgraph AILayer ["🧠 Executive AI Copilot (Google Gemini 3.5 Flash)"]
+        G1["Multi-Turn Function Calling Orchestrator (6+1 Turns)"]
+        G2["Zero-Trust Read-Only Text-to-SQL Engine (SELECT / WITH)"]
+        G3["Multimodal Vision OCR (Insurance PDFs, V5C, Licences)"]
+        G4["UK GDPR PII Masking & USD Spend Cap Gatekeeper"]
     end
 
-    subgraph StorageLayer ["Database & File Vault"]
-        E1[("PostgreSQL 14 (Dedicated 127.0.0.1)")]
-        E2["Sandboxed File Vault (V5C, Licences, Contracts)"]
+    subgraph AsyncServices ["🔌 External Gateways & Microservices"]
+        D1["Evolution API v2 (Dockerized Baileys WhatsApp Engine)"]
+        D2["Anti-Ban Jitter, Spintax & Live Socket Ping Verifier"]
+        D3["Remote Cryptographic e-Signature Portal (/assinar/<token>)"]
     end
 
-    A1 & A2 --> B1
+    subgraph StorageLayer ["🗄️ Persistence & Document Vault"]
+        E1[("PostgreSQL 14 (127.0.0.1 Dedicated Pool)")]
+        E2["Sandboxed Document Vault (V5C, CBT, Contracts, Claims)"]
+        E3["Nightly pg_dump & 90-Day Media Lifecycle Pruner"]
+    end
+
     A3 --> A1
-    B1 --> B2
-    B2 --> C1
-    C1 --> C2
-    C2 --> C4
-    C2 --> E1
+    A1 & A2 --> B1 --> B2 --> C1 --> C2
+    B2 --> B3
+    C2 --> C5 --> E1
     C2 --> E2
-    C3 --> C2
-    C3 --> D2
-    D2 --> D1
-    C2 --> D3
-    C3 --> D4
-    D4 --> E1
+    C3 --> C4 --> C2
+    C2 --> G1
+    G1 --> G2 & G3 & G4
+    G2 --> E1
+    G3 --> E2
+    C3 --> D2 --> D1
+    C2 --> D3 --> E1
+    C3 --> E3 --> E1 & E2
 ```
 
 ---
 
-## 💡 Key Engineering Challenges & Solutions
+## 🧠 2. Deep-Dive Engineering Case Studies (STAR Format)
 
-### 1. Eliminating Race Conditions in Recurring Billing
-* **The Problem:** In a multi-worker WSGI cloud environment (Gunicorn), autonomous recurring billing tasks scheduled at 01:00 AM risk executing concurrently on multiple worker processes, resulting in catastrophic double-billing.
-* **The Solution:** Implemented a two-phase concurrency shield:
-  1. Operating-system level file locks (`fcntl.flock`) on POSIX lockfiles.
-  2. Database-backed atomic conditional update locks (`JobExecutionLock`) ensuring that daily billing routines execute strictly once per calendar day regardless of server reboots or multiple worker triggers.
+### Case Study 1: Autonomous Executive AI Copilot — Multi-Turn Text-to-SQL, Multimodal OCR & Zero-Trust GDPR Governance
+* **The Challenge:** Dealership executives needed instant answers to complex, ad-hoc cross-domain questions (e.g., *"Which customer has the worst payment behaviour across active contracts?"*, *"Does vehicle GV24KHY have valid insurance uploaded, and when does the policy expire?"*, or *"List all Forza 350 contracts with pre-delivery compliance gaps"*). Static dashboard charts could not anticipate every operational query, while raw LLM database access posed severe security, PII leakage, and hallucination risks.
+* **The Architectural Solution:** Engineered an in-house **Multi-Turn AI Agent (`ai_service.py`)** powered by **Google Gemini 3.5 Flash (`gemini-3.5-flash`)**:
+  1. **12 Specialized Domain Tools + Read-Only Text-to-SQL Sandbox (`tool_execute_readonly_sql`)**: Combines high-level domain tools (360° Customer Dossier, Pre-Delivery Compliance Calculator, Claims & Referral Tracker, Fleet/V5C/GPS Inspector) with a strict ANSI SQL execution engine. The SQL sandbox enforces `SELECT` / `WITH` (CTEs) only, blocks all DML/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `TRUNCATE`, `GRANT`, etc.) via word-boundary regex, forbids stacked queries (`;`), blocks credential columns (`senha_hash`), injects `LIMIT 100`, and normalizes PostgreSQL `INTERVAL` (`datetime.timedelta`), `Decimal`, `UUID`, and `date` types for lossless JSON serialization.
+  2. **6+1 Multi-Turn Chaining & Final Synthesis Pass**: Supports up to **6 consecutive tool-calling turns** so the agent can introspect schema metadata (`DB_SCHEMA_METADATA`), execute exploratory SQL queries, cross-reference document attachments, and—if all 6 turns are spent gathering data—automatically trigger a **7th synthesis pass (`tools=None`)** to guarantee a structured executive response.
+  3. **Multimodal Vision OCR (`ler_conteudo_documento`)**: Reads uploaded PDFs and WebP images directly from disk into Base64 `inlineData` payloads, enabling the AI to visually inspect insurance certificates (`url_seguro`), V5C logbooks, and driving licences to verify policy numbers and expiry dates in real time.
+  4. **Resilience & Cost Governance**: Features automatic exponential backoff retry (`max_retries=2`) on transient `HTTP 503/429` upstream spikes, automatic UK GDPR PII masking (`mask_phone`, `mask_email`, `mask_address`), Root-only configuration locks (`HTTP 403` for non-root admins), a shared organizational cap of **150 queries/day**, and real-time USD token accounting (`$0.075/1M` input, `$0.300/1M` output).
 
-### 2. High-Density Database & Zero Cold-Start Latency
-* **The Problem:** Cloud database instances often suffer from morning "cold starts" where initial operator queries experience high I/O wait times as data pages are loaded from disk to RAM.
-* **The Solution:** 
-  * Tuned Linux OS kernel parameters (`vm.swappiness = 10`) on Ubuntu Jammy (Kernel 6.8 GCP) to prioritize RAM residency for PostgreSQL and Gunicorn processes.
-  * Engineered an autonomous **Morning Warm-Up Worker** scheduled at 07:45 AM Europe/London (15 minutes prior to automated messaging and 1h15m prior to store opening) to pre-warm PostgreSQL connection pools and populate frequently accessed fleet and contract ledgers into `shared_buffers`, achieving **<100ms first-response times** for operators.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Exec as 👤 Executive / Operator
+    participant UI as 🖥️ 75vw Copilot Drawer
+    participant API as ⚙️ Flask AI Controller
+    participant SQL as 🛡️ Read-Only SQL & Tool Sandbox
+    participant OCR as 👁️ Multimodal Vision OCR
+    participant LLM as 🧠 Gemini 3.5 Flash API
 
-### 3. WhatsApp Messaging Gateway with Anti-Ban Protection
-* **The Problem:** Automated financial reminders over WhatsApp are susceptible to instant telephone number bans by Meta algorithms if dispatched with rigid cadence or duplicate payloads.
-* **The Solution:**
-  * Containerized Baileys engine (Evolution API v2) connected via isolated Docker instances.
-  * Humanized anti-ban suite incorporating dynamic Spintax rotation (British English phrasing), simulated `composing...` typing states, and randomized jitter delays (15–30 seconds).
-  * Two-phase atomic dispatch reservations (`status='DISPATCHING'`) preventing worker collisions, with automatic 10-minute zombie lock reclamation.
-  * Multi-tier silencing hierarchy: Operators can snooze specific charges (`+3`, `+7`, `+14 days`), mute individual contracts, or silence VIP customers.
-  * **Internal Operations Alerting & Deposit Hold Quarantine Monitoring:** Automated daily routine (09:00 AM Europe/London) tracking returned vehicle rental agreements in 14-day security deposit quarantine (`Deposit_Hold`). Proactively alerts fleet management via WhatsApp whenever a quarantine completes 14+ days with an unrefunded deposit, prompting inspection sign-off and eliminating delayed customer deposit refunds.
-
-### 4. Bandwidth Optimization for Field Yard Inspections
-* **The Problem:** Yard staff upload high-resolution camera photos (5–12MB each) during vehicle intake and check-out, quickly choking cellular 4G/5G connections and inflating cloud storage costs.
-* **The Solution:** Implemented client-side image compression via HTML5 Canvas and Web Workers (`browser-image-compression`). Images are compressed and converted into lightweight WebP format directly inside the mobile browser before upload, slashing payload size by **~85%** while maintaining crisp visual resolution for inspection dispute audits.
-
-### 5. UK Regulatory & Legal Compliance & Remote Mobile Signing Portal
-* **DVLA & askMID Verification:** Automatic 15-day recurring checks against the government insurance database (`askMID`), with automatic exemption for vehicles officially declared off-road via **DVLA SORN** (`tax_sorn = True`).
-* **Paperless Legal Agreements & Remote WhatsApp Signing (`/assinar/<token>`):** Dynamically compiled agreements under English Law (*Electronic Communications Act 2000, s.7* & *UK eIDAS*) featuring 1-hour cryptographic signing links (`secrets.token_urlsafe(32)`), embedded full agreement review, explicit legal consent gating, touch-canvas signature pads, and tamper-proof post-signature locks (`HTTP 409 Conflict`) with instant PDF execution receipts.
-* **Forensic Audit Trail & Zero-Trust Base64 Media Delivery (UK GDPR):** Automatically records the signer's public IP (`X-Forwarded-For`), device `User-Agent`, and `Europe/London` timestamp while freezing an immutable customer/vehicle snapshot. Private uploads (`/static/uploads/`) remain strictly behind `@login_required` (`302 Redirect`), while customer verification documents and signatures are injected inline as Base64 Data URIs (`data:image/...;base64,...`) with zero secondary HTTP requests.
-* **Schedule 1 Identification & Verification Schedule (Safe-Harbor Customer Warranty):** Official contracts dynamically annex a permanent customer verification schedule (Driving Licence Front/Back, CBT, Proof of Address) in high-definition Base64 Data URIs (`file_url_to_data_uri`). Formulated under English Law as an affirmative *Customer Warranty* where the signatory legally warrants the authenticity of their records and indemnifies the company against falsification, PCNs, and traffic violations, eliminating affirmative inspection liability for the business while maintaining good-faith custody under the *Road Traffic Act 1988* and *UK GDPR*.
-* **Prominent Agreement Reference Numbering & Cross-Page Traceability:** Displays prominent `Agreement Reference: #<ID>` badges under Page 1 headers and cross-references `Agreement #<ID> • Page X of Y` across every single page footer.
-* **Strict Zero-Overflow A4 Print Budgets:** Precision layout calibration ensuring balanced page budgets: 4 pages for Rental/Instalments with docs (3 without), 3 pages for Outright Sale with docs (2 without), and calibrated single-page printing for Purchases with zero orphaned signature lines or phantom blank pages.
-* **UK Road Signage Authenticity:** Integrated BS AU 145e standard reflective yellow rear plates (`#fde047`) across all mobile and desktop interfaces.
-
-### 6. Edge Hardening & Automated Scanner Defense-in-Depth
-* **The Problem:** Cloud compute endpoints constantly receive internet background radiation—automated bots, exploit probes (e.g. Microsoft Exchange OWA, WordPress, phpMyAdmin), and vulnerability scanners. When unrecognized URLs redirect to the login page by default, automated bots can flood the authentication endpoint with blind credential submissions.
-* **The Solution:** Implemented a multi-tier defense architecture:
-  * **Edge Layer (Nginx):** Immediate `HTTP 403 Forbidden` drop for malicious scanning User-Agents (`got`, `zgrab`, `masscan`, `nikto`, etc.) and a silent sub-millisecond `HTTP 404 Not Found` (`access_log off`) for classic vulnerability probe endpoints (`/owa`, `/wp-admin`, etc.), consuming zero application memory or CPU cycles.
-  * **Application Routing (Flask):** The authentication hook verifies route existence against the application routing table before redirecting unauthenticated requests. Unrecognized paths (`request.endpoint is None`) immediately abort with `404 Not Found` rather than exposing the login view, while legitimate operational URLs safely redirect to login.
+    Exec->>UI: "Is GV24KHY a good payer and is their insurance valid?"
+    UI->>API: POST /api/ai/chat (CSRF + RBAC + Daily Quota Check)
+    API->>LLM: Turn 1: Prompt + System Rules + 12 Tool Declarations
+    LLM-->>API: functionCall: executar_consulta_sql (Join Contracts + Ledger)
+    API->>SQL: Validate AST/Regex (SELECT only, mask PII, normalize timedelta)
+    SQL-->>API: JSON Ledger Rows (On-time vs Overdue Aging)
+    API->>LLM: Turn 2: SQL Results
+    LLM-->>API: functionCall: ler_conteudo_documento (Inspect url_seguro PDF)
+    API->>OCR: Load Insurance Certificate from Vault -> Base64 inlineData
+    OCR-->>API: Multimodal Document Payload
+    API->>LLM: Turn 3: Base64 Document Stream (with 503 Auto-Retry Shield)
+    LLM-->>API: Final Structured Markdown Analysis + Actionable Deep Links
+    API->>UI: Render Tables, Status Badges & Deep Links (/contratos/ID)
+```
 
 ---
 
-## 🛠️ Technology Stack Breakdown
+### Case Study 2: Eliminating Race Conditions in Autonomous Recurring Billing & Messaging
+* **The Challenge:** In a production Linux cloud environment running multiple **Gunicorn WSGI worker processes**, background schedulers (`APScheduler`) initialize inside each worker process. Without distributed coordination, the 01:00 AM recurring weekly billing job and the 08:00 AM WhatsApp collection job would execute concurrently across workers—resulting in catastrophic double-billing and duplicate customer messages.
+* **The Architectural Solution:** Engineered a **Three-Tier Concurrency & Idempotency Shield**:
+  1. **OS Kernel Advisory Locks (`fcntl.flock`)**: Workers compete for an exclusive non-blocking POSIX file lock (`LOCK_EX | LOCK_NB`) on `/tmp/ffmotors_scheduler.lock` before entering any scheduled task.
+  2. **Database Atomic Execution Locks (`JobExecutionLock`)**: A dedicated lock table (`job_name`, `last_run_date`, `updated_at`) executes an atomic conditional SQL update ensuring each daily job (`daily_billing`, `morning_warmup`, `whatsapp_reminders`, `deposit_hold_alerts`) can only commit once per calendar day in `Europe/London` time.
+  3. **Two-Phase WhatsApp Dispatch Reservations (`status='DISPATCHING'`)**: Before sleeping for anti-ban jitter (15–30s) or invoking the external HTTP gateway, the worker atomically commits a `DISPATCHING` log row (`WhatsAppMessageLog`). Concurrent threads or manual triggers check `already_sent_today_for_transaction` and skip any charge already `SENT` or `DISPATCHING` (with automatic 10-minute stale lock reclamation if a worker crashes mid-flight).
 
-| Domain | Technology / Architecture |
-|---|---|
-| **Backend Framework** | Python 3.10+, Flask 3.0, Flask-Login, Flask-SQLAlchemy, SQLAlchemy 2.0 |
-| **WSGI & Application Server** | Gunicorn (Linux Multi-Worker) with Waitress fallback for local environments |
-| **Database Engine** | PostgreSQL 14 (Production with connection pooling) & SQLite 3 (Development WAL mode) |
-| **Edge & Web Proxy** | Nginx with TLS 1.3, CSP sandbox, and automated `.env`/`.git` 403 border shields |
-| **Cloud Hosting** | Google Cloud Platform (GCP) Compute Engine with automated nightly disk snapshots |
-| **Background Scheduling** | APScheduler (Autonomous background daemon for billing, media pruning, and warm-ups) |
-| **Messaging Infrastructure** | Evolution API v2 (Docker / Baileys WebSocket engine) |
-| **Frontend & Mobile UI** | Vanilla ES6+ JavaScript, CSS Dark Glassmorphism Design System, Installable PWA |
-| **Security & Auditing** | Comprehensive HMAC CSRF, NIST-compliant credential policies, Full Activity Audit Trail |
-
----
-
-## 📈 Architecture Highlights & Impact
-
-* ⚡ **~3.9ms Internal API Response Time**: Heavily indexed queries, eager-loading with `joinedload`, and elimination of N+1 bottlenecks.
-* 🛡️ **Zero Unhandled Financial Drift**: Bi-directional ledger linking, partial settlement child transactions (`⚡ Bal #ID`), and automated reversal reconciliation.
-* 📑 **100% Granular Audit Traceability & Asset Indexing**: High-performance B-tree indexed entity tracking (`placa`, `id_contrato`, `cliente_nome`) across all state-altering events (`AuditLog`), supporting 1-click interactive asset filtering, sub-millisecond lookups, and multi-column compliance exports.
-* 🔒 **UK GDPR Compliance**: Sandboxed file uploads with strict `@login_required` verification, private cache headers, and client-side session timeout shields.
+```mermaid
+flowchart LR
+    A["⏰ APScheduler Trigger\n(Multi-Worker Gunicorn)"] --> B{"1. POSIX fcntl.flock\n(LOCK_EX | LOCK_NB)"}
+    B -- "Lock Busy" --> Z["⏭️ Worker Aborts Immediately"]
+    B -- "Lock Acquired" --> C{"2. DB JobExecutionLock\n(last_run_date < Today UK)"}
+    C -- "Already Ran Today" --> Z
+    C -- "Atomic Row Claimed" --> D["3. Phase 1 Reservation\nCommit status='DISPATCHING'"]
+    D --> E["⏳ Anti-Ban Jitter (15-30s)\n+ Auto-Retry Backoff (3s/5s)"]
+    E --> F["✅ Phase 2 Commit\nstatus='SENT' + AuditLog"]
+```
 
 ---
 
-## 👤 Engineered By
+### Case Study 3: Resilient WhatsApp Gateway with Anti-Zombie Socket Detection & UK Legal Safe-Harbor
+* **The Challenge:** Unofficial WebSocket bridges (Baileys / Evolution API v2) frequently suffer from "zombie sessions"—where the internal Prisma database reports `connectionStatus == "open"`, but the underlying WhatsApp Web socket is actually dead (`SessionError: No sessions` or `Connection Closed`), causing batch reminder dispatches to fail silently. Furthermore, automated debt reminders in the UK must strictly comply with the *Protection from Harassment Act 1997* and *Road Traffic Act 1988*.
+* **The Architectural Solution:**
+  * **Live Socket Ping Verification (`check_evolution_connection`)**: Bypassed naive status endpoints by combining `/instance/fetchInstances` timestamp comparison (`updatedAt > disconnectionAt`) with a **live WhatsApp network socket ping** (`/chat/whatsappNumbers/{instance}`) against a known UK control number (`+44 7736 569665`). The UI only displays `Online` when the live Baileys socket confirms real-time WhatsApp network reachability.
+  * **Resilient Auto-Retry with Backoff (`dispatch_whatsapp_message`)**: Built a multi-attempt retry loop (`max_retries=2`, sleeping `3.0s` then `5.0s`) that automatically recovers from transient Baileys socket drops (`HTTP 500/502/503/504`, `Connection Closed`, `SessionError`, `RemoteDisconnected`) while failing fast on permanent errors (`401`, `422`).
+  * **3-Tier Silencing Hierarchy (`is_transaction_reminder_paused`)**: Operators can snooze individual ledger charges (`+3`, `+7`, `+14 days`, or permanent mute), silence a specific contract, or mute a VIP customer globally.
+  * **UK Legal Safe-Harbor Templates**: Automated templates (`due_today`, `overdue_d1`, `overdue_d2`, `overdue_3plus`, `mot_30d`, and internal `deposit_hold_14d` quarantine alerts) enforce **Title Case full-name greetings**, **zero bank account details in chat** (preventing phishing liability), a payment-disregard safe-harbor clause, official landline support (`0121 492 0697`), and statutory citations (*Section 47 of the Road Traffic Act 1988* for MOT compliance).
 
-**Thiago Brandão**  
-*Solutions Architect • Full-Stack Systems Engineer • Data Specialist*  
-📍 Birmingham, England, United Kingdom 🇬🇧
+---
 
-* 🌐 Website: **[ErroZero-Website](https://tmuniz570.github.io/ErroZero-Website/)**
-* 📁 HyperionDev: **[Portfolio Profile](https://www.hyperiondev.com/portfolio/101782/)**
-* 💼 LinkedIn: **[linkedin.com/in/tmuniz570](https://www.linkedin.com/in/tmuniz570)**
-* 📧 Email: **[tmuniz570@gmail.com](mailto:tmuniz570@gmail.com)**
-* 🐙 GitHub: **[@tmuniz570](https://github.com/tmuniz570)**
+### Case Study 4: Double-Entry-Inspired FinTech Ledger & 14-Day Deposit Quarantine State Machine
+* **The Challenge:** Vehicle rental operations deal with messy real-world payment scenarios: partial weekly payments, retroactive rate adjustments, promotional discounts, early vehicle returns, security deposit deductions for traffic fines (PCNs) or damage, and dealership motorcycle sales paid in weekly instalments.
+* **The Architectural Solution:**
+  * **Partial Settlement Child Splitting (`⚡ Bal #ID`)**: When a rider pays part of a weekly charge (e.g., pays £100 of a £150 rent invoice), the ledger settles the parent transaction for £100 (`Pago`) and automatically spawns a linked child transaction (`transacao_origem_id`) for the £50 remaining balance (`⚡ Bal #ID`), preserving exact historical cash-flow dates while tracking outstanding arrears.
+  * **Bi-Directional Reversal & Cascade Deletion**: Reversing a settled parent charge (`Estornar`) or deleting an erroneous entry automatically reconciles or purges orphaned child balance splits and recalculates contract totals atomically.
+  * **14-Day Security Deposit Quarantine (`Deposit_Hold`)**: When a rental bike is returned (`Devolvido`), operators can transition the contract into a **14-day statutory quarantine (`Deposit_Hold`)** while awaiting delayed UK council/police Penalty Charge Notices (PCNs). The vehicle is immediately released back to `Disponível` for re-hire, future billing stops, and an autonomous 09:00 AM monitor alerts management on Day 14+ to finalize deposit deductions or refunds.
+
+---
+
+### Case Study 5: UK Legal Tech — Cryptographic Remote e-Signing (`/assinar/<token>`) & Zero-Overflow A4 Print Engine
+* **The Challenge:** Paper contracts slow down vehicle handovers, get lost in the yard, and fail to bind remote guarantors or riders renewing agreements from home. Moreover, browser-to-PDF printing (`window.print()` / `html2pdf.js`) notoriously suffers from orphaned signature blocks and phantom blank pages.
+* **The Architectural Solution:**
+  * **4 Dynamic UK Contract Archetypes**: Supports **Weekly Rental Agreement**, **Rent-to-Buy / Sale by Instalments**, **Outright Cash Sale Receipt**, and **Dealership Vehicle Purchase Invoice (Trade-In / Acquisition)**.
+  * **Cryptographic Remote Signing Portal (`/assinar/<token>`)**: Generates 1-hour URL-safe cryptographic tokens (`secrets.token_urlsafe(32)`). Riders open the link on their smartphone via WhatsApp, review the full legal agreement in a scrollable viewport, check an explicit statutory consent box (*Electronic Communications Act 2000, s.7* & *UK eIDAS*), and sign on an HTML5 touch canvas.
+  * **Forensic Tamper-Proof Freeze (`HTTP 409 Conflict`)**: Upon submission, the backend records the signer's real IP (`CF-Connecting-IP` / `X-Forwarded-For`), device `User-Agent`, and `Europe/London` timestamp, freezes an immutable JSON snapshot of the client/vehicle state, locks the token against replay (`409 Conflict`), and embeds all verification IDs (Driving Licence, CBT, Proof of Address) as inline **Base64 Data URIs** (`file_url_to_data_uri`) so private `/static/uploads/` files remain strictly behind `@login_required`.
+  * **Schedule 1 Safe-Harbor Customer Warranty**: Formulates attached customer KYC documents as an affirmative legal warranty by the signatory under English Law, protecting the dealership against third-party document forgery while satisfying *Road Traffic Act 1988* custody records.
+  * **Deterministic A4 Page Budgets**: CSS `@media print` rules enforce strict page budgets (**4 pages** for Rental/Instalments with Schedule 1 docs, **3 pages** without; **3 pages** for Outright Sale with docs, **2 pages** without; **1 single page** for Purchase Invoices) with cross-page `Agreement #<ID> • Page X of Y` footers and zero page-overflow drift.
+
+---
+
+### Case Study 6: High-Density PostgreSQL Tuning, Zero Cold-Start Warm-Up & Edge Security
+* **The Challenge:** Cloud VMs experience I/O latency spikes on the first morning queries when PostgreSQL buffer caches are cold, while public IPv4 endpoints face relentless automated vulnerability scanning (`.env`, `.git`, `/wp-admin`, `/owa`, botnet User-Agents).
+* **The Architectural Solution:**
+  * **Kernel & Buffer Tuning + 07:45 AM Autonomous Warm-Up (`run_morning_system_warmup`)**: Configured Linux kernel `vm.swappiness = 10` on Ubuntu 22.04 LTS (GCP Kernel 6.8) and scheduled a 07:45 AM worker that pre-warms SQLAlchemy connection pools and loads active motorcycles, contracts, and pending financial ledgers into PostgreSQL `shared_buffers` 15 minutes before automated WhatsApp jobs and 75 minutes before store opening—delivering **~3.9ms internal API latency**.
+  * **Dual-Layer Scanner Shield (Nginx + Flask)**: Nginx immediately drops malicious scanning User-Agents (`masscan`, `zgrab`, `nikto`, `sqlmap`) with `403 Forbidden` and returns sub-millisecond silent `404 Not Found` (`access_log off`) for exploit probe paths. At the application layer, Flask verifies `request.endpoint is not None` before triggering `@login_required` redirects, ensuring unrecognized bot URLs receive an instant `404` instead of flooding `/login`.
+  * **Forensic Authentication & B-Tree Audit Trail (`AuditLog`)**: Captures real client IP, OS, Browser, Device Type, and Language across all `LOGIN_SUCCESS`, `LOGIN_FAILED` (with 10-attempt account lockout protection), `LOGOUT`, and `SESSION_EXPIRED` events. Every state change across the ERP automatically extracts and indexes `placa` (with alphanumeric regex validation preventing system message false positives), `id_contrato`, and `cliente_nome` for sub-millisecond forensic filtering and 1-click CSV export.
+
+---
+
+## 🗄️ 3. Relational Database Architecture (PostgreSQL 14 Schema)
+
+The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, comprising **15 normalized tables** with strict foreign-key integrity and composite B-tree indexing:
+
+| Domain | Core Tables | Key Engineering Features |
+| :--- | :--- | :--- |
+| **Fleet & Statutory Assets** | `motos`, `motos_v5c`, `motos_rastreadores` | Tracks registration plate (`placa`), VIN (`chassi`), purchase cost, `tax_sorn` DVLA flag, `vencimento_mot`, `vencimento_tax`, multi-page V5C logbooks, and GPS tracker serial history. |
+| **CRM & KYC Compliance** | `clientes`, `anexos_cliente` | Stores UK driving licence numbers, CBT expiry dates, masked PII fields, bi-weekly `askMID` verification counters, and WhatsApp silencing flags. |
+| **Agreements & e-Signing** | `contratos`, `anexos_contrato` | Supports `Rent`, `Sale_Installment`, `Sale_Cash`, and `Purchase` types, cryptographic signing tokens, forensic IP/User-Agent stamps, and `Deposit_Hold` quarantine timestamps. |
+| **FinTech Ledger** | `financeiro` | Bi-directional ledger (`Receita` / `Despesa`), self-referential `transacao_origem_id` for partial payment child splits (`⚡ Bal #ID`), PCN fine recharges, and per-charge snooze dates. |
+| **Yard Inspections & Claims** | `vistorias`, `claims` | Check-in/Check-out fuel, mileage, WebP damage photos, touch signatures, plus UK accident claim workflows (`McAms`, `ALS`, `365`) with 14d referral & 28d storage fee SLAs. |
+| **AI Copilot & Governance** | `ai_chat_settings`, `ai_chat_sessions`, `ai_chat_messages` | Tracks Gemini model config, shared 150/day organizational quota, real-time USD token spend (`custo_acumulado_mes`), tool invocation logs, and 30-day auto-retention. |
+| **Security, Locks & Comms** | `usuarios`, `logs_auditoria`, `whatsapp_logs`, `job_execution_locks` | Granular RBAC permissions (`perm_motos`, `perm_contratos`, `perm_financeiro`, `perm_ia`, `is_root`), two-phase WhatsApp dispatch logs, and atomic daily job locks. |
+
+---
+
+## 🧪 4. Engineering Quality, Testing & Zero-Downtime CI/CD
+
+* **20+ Deterministic Automated Test Suites (`tests/`)**:
+  * Comprehensive coverage across financial ledger math, partial payment reversals, contract numbering, remote e-signature state machines, WhatsApp anti-ban retry loops, audit log forensic extraction, and AI Copilot security.
+  * **Zero-Token AI Test Isolation**: Routine unit tests (`test_ai_consultant.py`, `test_ai_copilot.py`) mock `urllib.request.urlopen` and `call_gemini_api` via `unittest.mock.patch`, validating Text-to-SQL AST sandboxing, PostgreSQL `timedelta` serialization, HTTP 503 auto-retry backoff, and 6+1 multi-turn synthesis in `<5 seconds` with **zero live API token cost**.
+* **Production Safety & Disaster Recovery**:
+  * **Git Hook CI/CD**: Pushing to the `production` remote triggers an automated server-side hook that synchronizes the working tree to `/var/www/ffmotors` and gracefully restarts the `systemd` Gunicorn service.
+  * **Nightly Automated Backups**: Cron-scheduled `pg_dump` snapshots with 7-day rolling retention in `/var/backups/ffmotors`, paired with an automated 90-day media lifecycle pruner (`run_cleanup_old_media`) that reclaims disk space from closed inspections while preserving active legal contracts and V5C logbooks.
+
+---
+
+## 🛠️ 5. Complete Technology Stack
+
+| Layer | Technologies & Standards |
+| :--- | :--- |
+| **Backend & API** | Python 3.10+, Flask 3.0, SQLAlchemy 2.0, Flask-Login, Werkzeug Security, RESTful JSON APIs |
+| **AI & Data Science** | Google Gemini 3.5 Flash (`generativelanguage` REST API), Function Calling, Text-to-SQL AST Sandbox, Multimodal Vision OCR |
+| **Database & Caching** | PostgreSQL 14 (Production Connection Pool + Warm-Up Worker), SQLite 3 (Local Dev WAL Mode), B-Tree Composite Indexing |
+| **Cloud & Infrastructure** | Google Cloud Platform (GCP Compute Engine, Ubuntu 22.04 LTS Kernel 6.8), Docker, `systemd`, Gunicorn WSGI, POSIX `fcntl` |
+| **Edge & Networking** | Cloudflare DNS/Proxy, Nginx Reverse Proxy (TLS 1.3, Scanner Shield, `.env`/`.git` 403 Armor, Security Headers) |
+| **Messaging & Automation** | APScheduler Background Daemon, Evolution API v2 (Baileys WebSocket), Spintax & Anti-Ban Jitter Engine |
+| **Frontend & Mobile PWA** | Vanilla ES6+ JavaScript, Custom Dark Glassmorphism UI (`75vw` Adaptive Drawer), HTML5 Canvas Touch Signatures, Client-Side WebP Compression, Service Worker PWA |
+| **UK Legal & Compliance** | Electronic Communications Act 2000 (s.7), UK eIDAS, Consumer Rights Act 2015, Road Traffic Act 1988 (s.47), Protection from Harassment Act 1997, UK GDPR |
+
+---
+
+## 👨‍💻 About the Author & Architect
+
+<div align="center">
+
+### **Thiago Brandão**
+**Senior Full-Stack Software Engineer • Systems Architect • AI & Data Engineer**  
+📍 *Birmingham, England, United Kingdom 🇬🇧*
+
+I specialize in designing, building, and scaling **mission-critical production software, FinTech ledgers, autonomous AI agents, and cloud-native architectures** that solve real commercial problems with measurable business impact.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect_with_Thiago-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/tmuniz570)
+[![Portfolio](https://img.shields.io/badge/Website-ErroZero_Portfolio-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://tmuniz570.github.io/ErroZero-Website/)
+[![HyperionDev](https://img.shields.io/badge/HyperionDev-Verified_Graduate_Portfolio-6366F1?style=for-the-badge&logo=academia&logoColor=white)](https://www.hyperiondev.com/portfolio/101782/)
+[![Email](https://img.shields.io/badge/Email-tmuniz570%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tmuniz570@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-%40tmuniz570-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tmuniz570)
+
+</div>
 
 ---
 
 <div align="center">
-  <sub>Copyright © 2026 Thiago Brandão. All architectural specifications and engineering implementations reserved.</sub>
+  <sub>Copyright © 2026 Thiago Brandão. All architectural specifications, diagrams, and engineering implementations reserved.</sub>
 </div>
