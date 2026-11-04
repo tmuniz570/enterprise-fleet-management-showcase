@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.101)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.106)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **100+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **106+ iterative production releases**.
 
 </div>
 
@@ -32,10 +32,10 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 
 | Engineering Metric | Production Benchmark | Architectural Driver |
 | :--- | :--- | :--- |
-| **Active Commercial Scale** | **150+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Maintenance`, `Claim`, `Sold`, `Decommissioned`) |
+| **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
-| **Production Maturity** | **v1.9.101 (101 Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **20+ Specialized Test Suites** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Production Maturity** | **v1.9.106 (106+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **220+ Tests (53 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -198,13 +198,23 @@ flowchart LR
 
 ---
 
+### Case Study 7: Mission-Critical Asset Telematics, Rent-to-Buy Lifecycle Machine & Dual-Metric Fleet Utilization
+* **The Challenge:** In high-volume commercial motorcycle rental and Rent-to-Buy dealerships, GPS telematics hardware represents both the primary defense against vehicle theft and an expensive capital asset. In early iterations, tracker recovery alerts fired naively on contract financial balance or simple vehicle handovers. This generated catastrophic false alerts (e.g. demanding removal of trackers on bikes that were still financed and circulating on the road) or missed recoveries (leaving company-owned trackers on bikes whose ownership had formally transferred to the customer). Furthermore, operations dashboards suffered from metric ambiguity when vehicles were returned but placed in statutory security deposit quarantine (`Deposit_Hold`), leading managers to perceive false discrepancies between active contracts and vehicles physically on the road.
+* **The Architectural Solution:**
+  1. **Strict Decoupling of Contract Intent & Physical Asset State Machine (`MotoStatus.FINANCED` vs `MotoStatus.SOLD`)**: Replaced implicit assumptions with explicit domain state modeling. When a Rent-to-Buy agreement reaches zero balance, the vehicle does not automatically become `Sold`; it only transitions to `Sold` upon definitive title transfer. While an agreement is in progress, the motorcycle is formally designated as `Financed` (or `Rented`), strictly isolated from outright `Sold` inventory.
+  2. **Universal Tracker Removal State Invariant**: Formulated the ironclad operational telemetry rule: *A company GPS tracker must ONLY be removed when the motorcycle status is strictly `Sold`*. Under `Financed`, `Available`, `Rented`, `Maintenance`, or `Pound`, FF Motors retains title and asset liability, so company hardware remains protected.
+  3. **Dual-Metric Governance & Mathematical Transparency**: Formulated and surfaced the operational distinction between **Active Deals on Road (96 Vehicles)** — motorcycles physically rented or financed in circulation generating operational risk — and **Open / Active Contracts (99 Agreements)** — which includes 3 contracts in 14-day statutory `Deposit_Hold` quarantine where the physical bikes have already been returned to yard inventory (`Disponível`).
+  4. **Multi-Table SQLAlchemy Isolation & 8-Card Interactive Dashboard**: Fixed multi-table SQLAlchemy query isolation (`PropComparator.any(db.and_(...))`) to eliminate cross-subquery pollution across combined filters (`status`, `tracker_company`, `deposit_status`), backed by 8 real-time KPI filter pills on the `/motos` fleet operations console.
+
+---
+
 ## 🗄️ 3. Relational Database Architecture (PostgreSQL 14 Schema)
 
 The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, comprising **15 normalized tables** with strict foreign-key integrity and composite B-tree indexing:
 
 | Domain | Core Tables | Key Engineering Features |
 | :--- | :--- | :--- |
-| **Fleet & Statutory Assets** | `motos`, `motos_v5c`, `motos_rastreadores` | Tracks registration plate (`placa`), VIN (`chassi`), purchase cost, `tax_sorn` DVLA flag, `vencimento_mot`, `vencimento_tax`, multi-page V5C logbooks, and GPS tracker serial history. |
+| **Fleet & Statutory Assets** | `motos`, `motos_v5c`, `motos_rastreadores` | Tracks registration plate (`placa`), VIN (`chassi`), purchase cost, `tax_sorn` DVLA flag, `vencimento_mot`, `vencimento_tax`, multi-page V5C logbooks, native lifecycle states (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`), and GPS tracker serial history with universal recovery rules. |
 | **CRM & KYC Compliance** | `clientes`, `anexos_cliente` | Stores UK driving licence numbers, CBT expiry dates, masked PII fields, bi-weekly `askMID` verification counters, and WhatsApp silencing flags. |
 | **Agreements & e-Signing** | `contratos`, `anexos_contrato` | Supports `Rent`, `Sale_Installment`, `Sale_Cash`, and `Purchase` types, cryptographic signing tokens, forensic IP/User-Agent stamps, and `Deposit_Hold` quarantine timestamps. |
 | **FinTech Ledger** | `financeiro` | Bi-directional ledger (`Receita` / `Despesa`), self-referential `transacao_origem_id` for partial payment child splits (`⚡ Bal #ID`), PCN fine recharges, and per-charge snooze dates. |
@@ -216,7 +226,7 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
 
 ## 🧪 4. Engineering Quality, Testing & Zero-Downtime CI/CD
 
-* **20+ Deterministic Automated Test Suites (`tests/`)**:
+* **53 Deterministic Automated Test Suites (222 Unit & Integration Tests) (`tests/`)**:
   * Comprehensive coverage across financial ledger math, partial payment reversals, contract numbering, remote e-signature state machines, WhatsApp anti-ban retry loops, audit log forensic extraction, and AI Copilot security.
   * **Zero-Token AI Test Isolation**: Routine unit tests (`test_ai_consultant.py`, `test_ai_copilot.py`) mock `urllib.request.urlopen` and `call_gemini_api` via `unittest.mock.patch`, validating Text-to-SQL AST sandboxing, PostgreSQL `timedelta` serialization, HTTP 503 auto-retry backoff, and 6+1 multi-turn synthesis in `<5 seconds` with **zero live API token cost**.
 * **Production Safety & Disaster Recovery**:
