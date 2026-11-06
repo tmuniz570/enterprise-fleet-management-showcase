@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.108)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.119)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **108+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **119+ iterative production releases**.
 
 </div>
 
@@ -34,8 +34,9 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | :--- | :--- | :--- |
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
-| **Production Maturity** | **v1.9.108 (108+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **220+ Tests (53 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
+| **Production Maturity** | **v1.9.119 (119+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **230+ Tests (54 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -50,6 +51,12 @@ flowchart TD
         A1["Mobile PWA (iOS Safari / Android Touch UI)"]
         A2["Desktop Executive ERP & 75vw AI Drawer"]
         A3["Client-Side WebP Compressor (Canvas / Web Workers)"]
+    end
+
+    subgraph EdgeIoT ["📷 Physical Yard & Edge IoT Layer"]
+        F1["Hikvision ANPR Camera (Virtual Host 65008)"]
+        F2["Store Windows PC Daemon (FFMotors_LPR_Bridge.exe)"]
+        F3["Offline Persistent FIFO Queue & System Tray Icon"]
     end
 
     subgraph EdgeLayer ["🛡️ Edge Security & Proxy Layer (GCP)"]
@@ -86,7 +93,8 @@ flowchart TD
     end
 
     A3 --> A1
-    A1 & A2 --> B1 --> B2 --> C1 --> C2
+    A1 & A2 --> B1
+    F1 --> F2 --> F3 --> B1 --> B2 --> C1 --> C2
     B2 --> B3
     C2 --> C5 --> E1
     C2 --> E2
@@ -221,6 +229,47 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
 | **Yard Inspections & Claims** | `vistorias`, `claims` | Check-in/Check-out fuel, mileage, WebP damage photos, touch signatures, plus UK accident claim workflows (`McAms`, `ALS`, `365`) with 14d referral & 28d storage fee SLAs. |
 | **AI Copilot & Governance** | `ai_chat_settings`, `ai_chat_sessions`, `ai_chat_messages` | Tracks Gemini model config, shared 150/day organizational quota, real-time USD token spend (`custo_acumulado_mes`), tool invocation logs, and 30-day auto-retention. |
 | **Security, Locks & Comms** | `usuarios`, `logs_auditoria`, `whatsapp_logs`, `job_execution_locks` | Granular RBAC permissions (`perm_motos`, `perm_contratos`, `perm_financeiro`, `perm_ia`, `is_root`), two-phase WhatsApp dispatch logs, and atomic daily job locks. |
+
+---
+
+### Case Study 7: Real-Time Edge IoT & ANPR Gatekeeper — Hikvision ISAPI alertStream, Store Bridge Daemon & Offline Resiliency
+* **The Challenge:** Physical yard access control and customer greeting required staff to manually check motorcycle registration plates upon arrival, inspect ledger balances on the office desktop, and verify whether the customer had overdue rent, missing GPS trackers, or expired MOTs. When staff were busy in the workshop, delinquent or unverified riders would enter and leave unnoticed. Furthermore, the dealership operates in a physical store where internet connections can fluctuate, and the ANPR camera sits on an isolated internal NVR PoE subnet (`192.168.254.x`).
+* **The Architectural Solution:**
+  1. **NVR Virtual Host & HTTP Chunked Push Streaming (`alertStream`)**: Routed the Hikvision ANPR camera through the NVR LAN (`192.168.1.49`) Virtual Host on port `65008`. The bridge maintains a continuous HTTP connection (`GET /ISAPI/Event/notification/alertStream`) using Digest Auth. Rather than polling, the camera pushes structured XML down the open socket in sub-15ms time upon plate recognition.
+  2. **Store Windows Background Daemon (`FFMotors_LPR_Bridge.exe`) & System Tray Integration (`pystray` + `PIL`)**: A lightweight compiled background binary (~25MB RAM, 0% CPU) with Windows System Tray integration near the clock (dynamic tooltip, green status beacon, and context menu to open web dashboard, inspect logs in Notepad, or clean shutdown).
+  3. **Offline Resiliency & Persistent FIFO Queue (`lpr_offline_queue.json`)**: Buffers up to 500 readings on disk during local internet outages. An autonomous flusher thread restores delivery upon reconnection.
+  4. **Optical Timestamp Precision & Stale Alert Suppression**: Preserves true camera capture time in `Europe/London` time. Delayed arrivals (>15m) are logged historically in the database but WhatsApp alerts to reception are suppressed (`OFFLINE_SYNC_EXPIRED`) to prevent false alarms.
+  5. **Intelligent OCR Filtering & Database Auto-Purge**: Discards unreadable OCR detections (`UNKNOWN`, `UNREAD`, `NOPLATE`, `NONE`, `NULL`, `DESCONHECIDO` or length < 2) at the edge bridge and cloud webhook, backed by boot-time database self-healing.
+  6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, and missing customer KYC. Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`) with 30-minute anti-spam debounce window, never messaging the customer.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Rider as 🏍️ Motorcycle Rider
+    participant Cam as 📷 Hikvision ANPR Camera
+    participant NVR as 🖧 NVR Virtual Host (:65008)
+    participant Bridge as 💻 Store PC (FFMotors_LPR_Bridge.exe)
+    participant Cloud as ☁️ Flask Cloud Webhook
+    participant DB as 🗄️ PostgreSQL 14
+    participant WA as 💬 Evolution API (Reception WhatsApp)
+
+    Rider->>Cam: Enters physical yard gate
+    Cam->>Cam: Edge OCR: Optical Plate Extraction (sub-15ms)
+    Cam->>NVR: Push XML chunk down alertStream
+    NVR->>Bridge: Stream Chunk via TCP :65008 (ISAPI)
+    Bridge->>Bridge: Filter UNKNOWN / Validate Plate / Add Timestamp
+    alt Store Online
+        Bridge->>Cloud: POST /api/lpr/receber-placa (Bearer HMAC Token)
+    else Store Offline
+        Bridge->>Bridge: Buffer in lpr_offline_queue.json (max 500)
+    end
+    Cloud->>DB: Query Motorcycle, Contracts, Balances & Trackers
+    DB-->>Cloud: Pendency Evaluation: £120.00 Overdue + MOT Expired
+    Cloud->>DB: Log LprLog (data_hora=CameraTime, resposta_status='ALERT_SENT')
+    Cloud->>WA: POST /message/sendText to Reception (+44 7576 277372)
+    WA-->>Cloud: 200 OK (Dispatched)
+    Cloud-->>Bridge: 200 OK (ACK)
+```
 
 ---
 
