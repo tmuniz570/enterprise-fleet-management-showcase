@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.130)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.131)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -35,7 +35,7 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.130 (130+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
+| **Production Maturity** | **v1.9.131 (131+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
 | **Automated Test Coverage** | **245+ Tests (59 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
@@ -242,6 +242,7 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
   5. **Intelligent OCR Filtering & Database Auto-Purge**: Discards unreadable OCR detections (`UNKNOWN`, `UNREAD`, `NOPLATE`, `NONE`, `NULL`, `DESCONHECIDO` or length < 2) at the edge bridge and cloud webhook, backed by boot-time database self-healing.
   6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, and customer KYC compliance. Operates strictly on active on-road agreements (returned motorbikes in `Deposit_Hold` quarantine are 100% exempt from compliance alerts). Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`), never messaging the customer.
   7. **Asynchronous Dispatch & Multi-Worker Atomic Lock (`JobExecutionLock`)**: Outgoing WhatsApp alerts with humanized anti-ban jitter (15–30s) are dispatched asynchronously in a detached daemon thread, allowing `/api/lpr/receber-placa` to return `HTTP 200 OK` in ~15ms (eliminating store bridge timeouts). Multi-worker race conditions between parallel Gunicorn workers are eliminated via an atomic conditional SQL reservation lock (`JobExecutionLock`), ensuring exactly one alert per 30-minute debounce window.
+  8. **Workshop Debtor Watchlist & Decoupled Parallel Triage (`WorkshopWatchlist`)**: Dealerships with adjacent repair garages manage external repair debts. To alert front-desk reception without polluting internal fleet inventory (`Motorcycle`), the LPR engine runs parallel evaluation across internal contracts and external workshop debtor plates. Upon optical recognition, external debtor motorbikes trigger instant WhatsApp alerts to reception (`🔧 Workshop Debt: Pending balance in workshop system (£{val} - {motivo})`), recording `encontrada_frota=False`. Once settled, records are immediately hard-deleted (`DELETE`), preventing dead row accumulation while historical invoices remain safely stored inside the workshop ERP. Accessible via a dedicated responsive dashboard modal engineered under Apple HIG (44px touch targets, zero-zoom 16px iOS fonts, and full dark glassmorphic styling).
 
 ```mermaid
 sequenceDiagram
