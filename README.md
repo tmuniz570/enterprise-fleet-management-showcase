@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.119)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.130)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **119+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **130+ iterative production releases**.
 
 </div>
 
@@ -35,8 +35,8 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.119 (119+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **230+ Tests (54 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Production Maturity** | **v1.9.130 (130+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **245+ Tests (59 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -240,7 +240,8 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
   3. **Offline Resiliency & Persistent FIFO Queue (`lpr_offline_queue.json`)**: Buffers up to 500 readings on disk during local internet outages. An autonomous flusher thread restores delivery upon reconnection.
   4. **Optical Timestamp Precision & Stale Alert Suppression**: Preserves true camera capture time in `Europe/London` time. Delayed arrivals (>15m) are logged historically in the database but WhatsApp alerts to reception are suppressed (`OFFLINE_SYNC_EXPIRED`) to prevent false alarms.
   5. **Intelligent OCR Filtering & Database Auto-Purge**: Discards unreadable OCR detections (`UNKNOWN`, `UNREAD`, `NOPLATE`, `NONE`, `NULL`, `DESCONHECIDO` or length < 2) at the edge bridge and cloud webhook, backed by boot-time database self-healing.
-  6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, and missing customer KYC. Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`) with 30-minute anti-spam debounce window, never messaging the customer.
+  6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, and customer KYC compliance. Operates strictly on active on-road agreements (returned motorbikes in `Deposit_Hold` quarantine are 100% exempt from compliance alerts). Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`), never messaging the customer.
+  7. **Asynchronous Dispatch & Multi-Worker Atomic Lock (`JobExecutionLock`)**: Outgoing WhatsApp alerts with humanized anti-ban jitter (15–30s) are dispatched asynchronously in a detached daemon thread, allowing `/api/lpr/receber-placa` to return `HTTP 200 OK` in ~15ms (eliminating store bridge timeouts). Multi-worker race conditions between parallel Gunicorn workers are eliminated via an atomic conditional SQL reservation lock (`JobExecutionLock`), ensuring exactly one alert per 30-minute debounce window.
 
 ```mermaid
 sequenceDiagram
@@ -249,8 +250,9 @@ sequenceDiagram
     participant Cam as 📷 Hikvision ANPR Camera
     participant NVR as 🖧 NVR Virtual Host (:65008)
     participant Bridge as 💻 Store PC (FFMotors_LPR_Bridge.exe)
-    participant Cloud as ☁️ Flask Cloud Webhook
-    participant DB as 🗄️ PostgreSQL 14
+    participant Cloud as ☁️ Flask Cloud Webhook (~15ms)
+    participant DB as 🗄️ PostgreSQL 14 (Atomic Lock)
+    participant AsyncWA as ⚙️ Async Daemon Thread
     participant WA as 💬 Evolution API (Reception WhatsApp)
 
     Rider->>Cam: Enters physical yard gate
@@ -263,19 +265,22 @@ sequenceDiagram
     else Store Offline
         Bridge->>Bridge: Buffer in lpr_offline_queue.json (max 500)
     end
+    Cloud->>DB: Atomic Claim: acquire_lpr_alert_lock (JobExecutionLock)
     Cloud->>DB: Query Motorcycle, Contracts, Balances & Trackers
     DB-->>Cloud: Pendency Evaluation: £120.00 Overdue + MOT Expired
     Cloud->>DB: Log LprLog (data_hora=CameraTime, resposta_status='ALERT_SENT')
-    Cloud->>WA: POST /message/sendText to Reception (+44 7576 277372)
-    WA-->>Cloud: 200 OK (Dispatched)
-    Cloud-->>Bridge: 200 OK (ACK)
+    Cloud->>AsyncWA: Spawn background dispatch daemon
+    Cloud-->>Bridge: 200 OK (Instant ACK ~15ms)
+    AsyncWA->>AsyncWA: Anti-ban jitter sleep (15-30s)
+    AsyncWA->>WA: POST /message/sendText to Reception (+44 7576 277372)
+    WA-->>AsyncWA: 200 OK (Dispatched)
 ```
 
 ---
 
 ## 🧪 4. Engineering Quality, Testing & Zero-Downtime CI/CD
 
-* **53 Deterministic Automated Test Suites (222 Unit & Integration Tests) (`tests/`)**:
+* **59 Deterministic Automated Test Suites (245+ Unit & Integration Tests) (`tests/`)**:
   * Comprehensive coverage across financial ledger math, partial payment reversals, contract numbering, remote e-signature state machines, WhatsApp anti-ban retry loops, audit log forensic extraction, and AI Copilot security.
   * **Zero-Token AI Test Isolation**: Routine unit tests (`test_ai_consultant.py`, `test_ai_copilot.py`) mock `urllib.request.urlopen` and `call_gemini_api` via `unittest.mock.patch`, validating Text-to-SQL AST sandboxing, PostgreSQL `timedelta` serialization, HTTP 503 auto-retry backoff, and 6+1 multi-turn synthesis in `<5 seconds` with **zero live API token cost**.
 * **Production Safety & Disaster Recovery**:
