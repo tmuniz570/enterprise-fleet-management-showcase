@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.131)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.132)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -35,8 +35,8 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.131 (131+ Releases)** | Zero-downtime Git Hook CI/CD deployment pipeline directly to GCP Compute Engine (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **245+ Tests (59 Test Suites)** | Deterministic `unittest` suites with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Production Maturity** | **v1.9.132 (132+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **250+ Tests (59 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -232,7 +232,7 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
 
 ---
 
-### Case Study 7: Real-Time Edge IoT & ANPR Gatekeeper — Hikvision ISAPI alertStream, Store Bridge Daemon & Offline Resiliency
+### Case Study 8: Real-Time Edge IoT & ANPR Gatekeeper — Hikvision ISAPI alertStream, Store Bridge Daemon & Offline Resiliency
 * **The Challenge:** Physical yard access control and customer greeting required staff to manually check motorcycle registration plates upon arrival, inspect ledger balances on the office desktop, and verify whether the customer had overdue rent, missing GPS trackers, or expired MOTs. When staff were busy in the workshop, delinquent or unverified riders would enter and leave unnoticed. Furthermore, the dealership operates in a physical store where internet connections can fluctuate, and the ANPR camera sits on an isolated internal NVR PoE subnet (`192.168.254.x`).
 * **The Architectural Solution:**
   1. **NVR Virtual Host & HTTP Chunked Push Streaming (`alertStream`)**: Routed the Hikvision ANPR camera through the NVR LAN (`192.168.1.49`) Virtual Host on port `65008`. The bridge maintains a continuous HTTP connection (`GET /ISAPI/Event/notification/alertStream`) using Digest Auth. Rather than polling, the camera pushes structured XML down the open socket in sub-15ms time upon plate recognition.
@@ -279,9 +279,20 @@ sequenceDiagram
 
 ---
 
+### Case Study 9: Domain-Driven Blueprint Modularization, Zero-Trust Security Hardening & 3-Layer Infrastructure Observability
+* **The Challenge:** As the ERP scaled past 130+ commercial releases, the core routing layer grew to over 13,000 lines, increasing cognitive load. Simultaneously, enterprise UK GDPR audits required strict guarantees around credential encryption at rest, protection against disguised malicious uploads (e.g., SVG/HTML XSS or executables renamed as `.jpg`/`.pdf`), deterministic retention limits for ANPR camera logs, and proactive server disk space alerting before storage exhaustion could impact PostgreSQL or vehicle check-in uploads.
+* **The Architectural Solution:**
+  1. **Domain-Driven Modularization (11 Flask Blueprints, -73% Core Footprint)**: Decoupled the application into 11 cohesive domain Blueprints (`contratos_api`, `financeiro_api`, `motos_api`, `clientes_api`, `vistorias_api`, `trackers_api`, `claims_api`, `usuarios_api`, `whatsapp_api`, `ai_api`, and `lpr_api`), reducing `app.py` by **73%** (from 13,194 to 3,591 lines) while preserving 100% URL and frontend backward compatibility.
+  2. **API Key Encryption at Rest (`enc:v1:`) & Alias-Proof SQL GDPR Masking**: External API keys (`AIChatSetting.api_key` and `WhatsAppSetting.api_key`) are encrypted at rest via an HMAC-SHA256 CTR stream cipher derived from `SECRET_KEY`. In the AI Copilot's `tool_execute_readonly_sql`, enforced module-level RBAC, blocked sensitive columns/functions (`password_hash`, `api_key`, `token_assinatura_*`, `pg_read_file`, `pg_sleep`), and implemented alias-proof (`AS`) + value-pattern UK GDPR PII masking.
+  3. **Global Upload Magic-Bytes Inspection & Sliding-Window Rate Limiting**: Added global `@app.before_request` binary signature inspection (`is_safe_file_content`) blocking HTML/SVG/JS/PHP/PE/ELF/ZIP payloads disguised as images or PDFs, alongside thread-safe sliding-window rate limiting (`HTTP 429`) on `/assinar/<token>` and AI/OCR endpoints.
+  4. **3-Layer Server Disk Observability & Automated GDPR Retention**: Built a `<5ms` `/api/health` telemetry endpoint (`SELECT 1` + `shutil.disk_usage`), an automatic Admin Dashboard warning banner when disk usage reaches $\ge 85\%$, and a 07:45 AM WhatsApp alert directly to the system architect's personal phone—paired with fixed UK GDPR daily 06:00 AM purges (30 days for ANPR `lpr_leituras`, 30 days for AI sessions, and 180 days for `whatsapp_logs`) and `prune_old_backups(keep=3)`.
+
+---
+
 ## 🧪 4. Engineering Quality, Testing & Zero-Downtime CI/CD
 
-* **59 Deterministic Automated Test Suites (245+ Unit & Integration Tests) (`tests/`)**:
+* **59 Deterministic Automated Test Suites (250+ Unit & Integration Tests) (`run_tests.py` & `tests/`)**:
+  * **Ephemeral Database Test Isolation (`run_tests.py`)**: Clones the local database using SQLite's native atomic backup API (`src.backup(dst)`) into an isolated `FFMOTORS_TEST_DB` instance before running all 59 suites, guaranteeing zero side effects on local development data.
   * Comprehensive coverage across financial ledger math, partial payment reversals, contract numbering, remote e-signature state machines, WhatsApp anti-ban retry loops, audit log forensic extraction, and AI Copilot security.
   * **Zero-Token AI Test Isolation**: Routine unit tests (`test_ai_consultant.py`, `test_ai_copilot.py`) mock `urllib.request.urlopen` and `call_gemini_api` via `unittest.mock.patch`, validating Text-to-SQL AST sandboxing, PostgreSQL `timedelta` serialization, HTTP 503 auto-retry backoff, and 6+1 multi-turn synthesis in `<5 seconds` with **zero live API token cost**.
 * **Production Safety & Disaster Recovery**:
