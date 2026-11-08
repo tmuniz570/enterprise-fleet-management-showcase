@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.134)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.136)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **130+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **136+ iterative production releases**.
 
 </div>
 
@@ -35,8 +35,8 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.134 (134+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **258+ Tests (61 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Production Maturity** | **v1.9.136 (136+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **259+ Tests (61 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -286,6 +286,16 @@ sequenceDiagram
   2. **API Key Encryption at Rest (`enc:v1:`) & Alias-Proof SQL GDPR Masking**: External API keys (`AIChatSetting.api_key` and `WhatsAppSetting.api_key`) are encrypted at rest via an HMAC-SHA256 CTR stream cipher derived from `SECRET_KEY`. In the AI Copilot's `tool_execute_readonly_sql`, enforced module-level RBAC, blocked sensitive columns/functions (`password_hash`, `api_key`, `token_assinatura_*`, `pg_read_file`, `pg_sleep`), and implemented alias-proof (`AS`) + value-pattern UK GDPR PII masking.
   3. **Global Upload Magic-Bytes Inspection & Sliding-Window Rate Limiting**: Added global `@app.before_request` binary signature inspection (`is_safe_file_content`) blocking HTML/SVG/JS/PHP/PE/ELF/ZIP payloads disguised as images or PDFs, alongside thread-safe sliding-window rate limiting (`HTTP 429`) on `/assinar/<token>` and AI/OCR endpoints.
   4. **3-Layer Server Disk Observability & Automated GDPR Retention**: Built a `<5ms` `/api/health` telemetry endpoint (`SELECT 1` + `shutil.disk_usage`), an automatic Admin Dashboard warning banner when disk usage reaches $\ge 85\%$, and a 07:45 AM WhatsApp alert directly to the system architect's personal phone—paired with fixed UK GDPR daily 06:00 AM purges (30 days for ANPR `lpr_leituras`, 30 days for AI sessions, and 180 days for `whatsapp_logs`) and `prune_old_backups(keep=3)`.
+
+---
+
+### Case Study 10: Executive Customer Dossier (A4 Compliance Report), Real-Time Fleet Matching & Zero-Trust Media Delivery
+* **The Challenge:** Front-desk staff creating new rental or hire-purchase contracts frequently struggled with incomplete customer background intelligence: previous unpaid traffic fines (PCNs) on older agreements, uncollected deposit deductions, or missing DVLA licences. Concurrently, browser security sandboxing (`Content-Security-Policy: sandbox`) unintentionally blocked native browser PDF plugins on Apple iOS Safari and desktop Chrome, while staff on mobile devices lacked an immediate way to download high-resolution insurance certificates and fitting photos.
+* **The Architectural Solution:**
+  1. **Executive Customer Dossier & Compliance Background Report ("Capivara do Cliente" — `/clientes/<id>/resumo-pdf`)**: Engineered a standalone, high-fidelity A4 printable compliance report synthesizing customer KYC profiles, DVLA driving licence checks, CBT certifications, historical and active contracts, outstanding PCN traffic liabilities, overdue balances, and internal staff notes. Powered by `print_pdf_engine.js` with instant binary PDF download and iOS AirPrint.
+  2. **Real-Time Fleet & Customer Matching Wizard (`/contratos/novo`)**: Added dynamic omni-search filtering with instantaneous visual preview cards (`#clienteSelectedCard` and `#motoSelectedCard`). Operators verify customer notes, licence previews, vehicle specs (UK BS AU 145e plate, MOT/Tax status, GPS tracker serial, V5C logbook status, and internal workshop bike notes) before agreement generation.
+  3. **Universal Document Download Action (`?download=1`) & Hybrid Lightbox**: Implemented `Content-Disposition: attachment` query support across all authenticated static routes, enabling 1-click downloads for PDFs, photos, and inspection assets across iOS Safari and desktop browsers. Configured adaptive CSP headers (`default-src 'self' blob: data:` for PDFs; strict `sandbox` for images) ensuring seamless native PDF rendering in modal iframes (`#lightboxPdfFrame`).
+  4. **Hardware Telematics Lifecycle & Granular Photo Purge (`DELETE /api/trackers/<id>/fotos`)**: RESTful endpoint for individual tracker installation and IMEI sticker photo deletion, with physical file disk cleanup, `TrackerHistory` forensic auditing, and inline photo controls across both vehicle management and inventory tracker modals.
 
 ---
 
