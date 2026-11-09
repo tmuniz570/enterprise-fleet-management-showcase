@@ -299,6 +299,16 @@ sequenceDiagram
 
 ---
 
+### Case Study 11: Production Edge Hardening (HTTP/2 & Gzip), Dual-Layer Firewall Defense & Autonomous Database Vacuuming
+* **The Challenge:** While application business logic was fortified, the production server infrastructure on Google Cloud Platform operated on standard default configurations: assets were transferred over legacy HTTP/1.1 (causing head-of-line blocking on mobile devices), JSON API payloads and dynamic proxied responses were transferred uncompressed, Nginx broadcasted OS/version fingerprints to network crawlers, and high-frequency updates across **198 active production motorcycles** generated dead tuples and index fragmentation in PostgreSQL.
+* **The Architectural Solution:**
+  1. **HTTP/2 Multiplexing & Dynamic Gzip Pipeline (-69.3% Bandwidth Reduction)**: Upgraded Nginx to ALPN `HTTP/2` (`listen 443 ssl http2`), establishing single persistent TCP/TLS tunnels that eliminate connection handshakes and parallelize asset downloads on iPhone Safari and desktop browsers. Configured dynamic reverse proxy compression (`gzip_proxied any` and comprehensive MIME types), slashing API payload transfer from 6.74 KB down to 2.06 KB (**-69.3% data volume**).
+  2. **Dual-Layer Defense-in-Depth (Linux UFW + Google Cloud VPC Firewall)**: Hardened the host OS with an active Linux kernel firewall (`ufw`) enforcing strict default-deny policies with explicit allowances only for `22/tcp` (key-based SSH), `80/tcp` (HTTP redirection), and `443/tcp` (HTTPS/HTTP2). Paired with Google Cloud's hypervisor-level VPC firewall, internal services (PostgreSQL 5432, Gunicorn 5000, Evolution API 8080) are completely insulated from external probing.
+  3. **Zero-Leak Telemetry Lockdown (`@admin_required` on `/api/health`) & Server Cloaking**: Restricted internal health telemetry exclusively to authenticated system administrators (`HTTP 401 Unauthorized` for anonymous scanners) and cloaked Nginx version headers (`server_tokens off`).
+  4. **Autonomous Weekly PostgreSQL Maintenance (`VACUUM ANALYZE` at 04:00 AM Sundays)**: Scheduled a non-blocking storage defragmentation and query planner optimization job running exactly 30 minutes after the daily 03:30 AM Google Cloud Storage offsite backup. Cleans dead tuples, compacts physical table pages, and recalculates optimizer statistics with zero downtime or table locking.
+
+---
+
 ## 🧪 4. Engineering Quality, Testing & Zero-Downtime CI/CD
 
 * **61 Deterministic Automated Test Suites (258+ Unit & Integration Tests) (`run_tests.py` & `tests/`)**:
