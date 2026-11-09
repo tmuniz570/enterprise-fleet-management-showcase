@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.136)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.144)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **136+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **144+ iterative production releases**.
 
 </div>
 
@@ -35,8 +35,8 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.136 (136+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
-| **Automated Test Coverage** | **259+ Tests (61 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
+| **Production Maturity** | **v1.9.144 (144+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Automated Test Coverage** | **270+ Tests (63 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
 | **System Availability** | **99.9% Production Uptime** | Multi-worker Gunicorn WSGI, POSIX `fcntl.flock` concurrency locks, and automated nightly `pg_dump` backups |
@@ -240,9 +240,9 @@ The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, c
   3. **Offline Resiliency & Persistent FIFO Queue (`lpr_offline_queue.json`)**: Buffers up to 500 readings on disk during local internet outages. An autonomous flusher thread restores delivery upon reconnection.
   4. **Optical Timestamp Precision & Stale Alert Suppression**: Preserves true camera capture time in `Europe/London` time. Delayed arrivals (>15m) are logged historically in the database but WhatsApp alerts to reception are suppressed (`OFFLINE_SYNC_EXPIRED`) to prevent false alarms.
   5. **Intelligent OCR Filtering & Database Auto-Purge**: Discards unreadable OCR detections (`UNKNOWN`, `UNREAD`, `NOPLATE`, `NONE`, `NULL`, `DESCONHECIDO` or length < 2) at the edge bridge and cloud webhook, backed by boot-time database self-healing.
-  6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, and customer KYC compliance. Operates strictly on active on-road agreements (returned motorbikes in `Deposit_Hold` quarantine are 100% exempt from compliance alerts). Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`), never messaging the customer.
+  6. **Automated Pendency Audit & Reception WhatsApp Dispatch**: Instantly checks overdue balance (£), missing hardware GPS trackers on rentals, company trackers on sold bikes, MOT/Tax expiry, customer KYC compliance, and full **Pre-Delivery Compliance** (initial Check-out inspection photos/odometer, insurance policy copy, and customer contract signature). Operates strictly on active on-road agreements (returned motorbikes in `Deposit_Hold` quarantine are 100% exempt from compliance alerts). Alerts are dispatched exclusively to the Reception Staff (`+44 7576 277372`), never messaging the customer.
   7. **Asynchronous Dispatch & Multi-Worker Atomic Lock (`JobExecutionLock`)**: Outgoing WhatsApp alerts with humanized anti-ban jitter (15–30s) are dispatched asynchronously in a detached daemon thread, allowing `/api/lpr/receber-placa` to return `HTTP 200 OK` in ~15ms (eliminating store bridge timeouts). Multi-worker race conditions between parallel Gunicorn workers are eliminated via an atomic conditional SQL reservation lock (`JobExecutionLock`), ensuring exactly one alert per 30-minute debounce window.
-  8. **Workshop Debtor Watchlist & Decoupled Parallel Triage (`WorkshopWatchlist`)**: Dealerships with adjacent repair garages manage external repair debts. To alert front-desk reception without polluting internal fleet inventory (`Motorcycle`), the LPR engine runs parallel evaluation across internal contracts and external workshop debtor plates. Upon optical recognition, external debtor motorbikes trigger instant WhatsApp alerts to reception (`🔧 Workshop Debt: Pending balance in workshop system (£{val} - {motivo})`), recording `encontrada_frota=False`. Once settled, records are immediately hard-deleted (`DELETE`), preventing dead row accumulation while historical invoices remain safely stored inside the workshop ERP. Accessible via a dedicated responsive dashboard modal engineered under Apple HIG (44px touch targets, zero-zoom 16px iOS fonts, and full dark glassmorphic styling).
+  8. **Workshop Debtor Watchlist & Decoupled Parallel Triage (`WorkshopWatchlist`)**: Dealerships with adjacent repair garages manage external repair debts. To alert front-desk reception without polluting internal fleet inventory (`Motorcycle`), the LPR engine runs parallel evaluation across internal contracts and external workshop debtor plates. Features an agreed promised payment date field (`data_promessa_pagamento`) with dynamic date calculations (`Promised payment TODAY`, `in Xd`, or `Xd overdue`), strict alphanumeric plate sanitization (no spaces), and instant hard-delete upon payment. Upon optical recognition, external debtor motorbikes trigger instant WhatsApp alerts to reception (`🔧 Workshop Debt: Pending balance in workshop system (£{val} - {motivo})`), recording `encontrada_frota=False`. Once settled, records are immediately hard-deleted (`DELETE`), preventing dead row accumulation while historical invoices remain safely stored inside the workshop ERP. Accessible via a dedicated responsive dashboard modal engineered under Apple HIG (44px touch targets, zero-zoom 16px iOS fonts, and full dark glassmorphic styling).
 
 ```mermaid
 sequenceDiagram
