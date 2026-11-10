@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.148)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.149)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **148+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **149+ iterative production releases**.
 
 </div>
 
@@ -33,10 +33,10 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | Engineering Metric | Production Benchmark | Architectural Driver |
 | :--- | :--- | :--- |
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
-| **Live GPS Telematics** | **300+ Cloud Trackers Audited** | Rewire GPSLive REST v1 live location, state duration analytics, anti-tamper alerts (`pwrcut`/SORN/uninsured), and wasted subscription auditing |
+| **Live GPS Telematics** | **300+ Cloud Trackers Audited** | Rewire GPSLive REST v1 live location, state duration analytics, anti-tamper alerts (`pwrcut`/SORN/uninsured), subscription recycling & audit |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.148 (148+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Production Maturity** | **v1.9.149 (149+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints) + zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
 | **Automated Test Coverage** | **323 Tests (64 Test Suites)** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp/Telematics gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
@@ -209,23 +209,23 @@ flowchart LR
 
 ---
 
-### Case Study 7: Mission-Critical Asset Telematics, Live GPS Subscription Auditing & Rent-to-Buy Lifecycle Machine
-* **The Challenge:** In high-volume commercial motorcycle rental and Rent-to-Buy dealerships, GPS telematics hardware represents both the primary theft-recovery safeguard and a recurring SaaS operating expense (300+ cellular subscriptions). Early iterations suffered from three operational gaps: naive tracker recovery alerts fired falsely on active financed bikes, multi-tracker vehicles hid dead or unpaid units, and dealership operators lacked cross-system visibility to spot active rentals with offline hardware (battery cut / dead SIM) or wasted paid subscriptions left running on sold motorcycles. Simultaneously, rental agreements needed resilient check-in undo handling and explicit lifecycle date auditing (start date, return date, and deposit refund date).
+### Case Study 7: Mission-Critical Asset Telematics, Automated Subscription Recycling & Rent-to-Buy Lifecycle Machine
+* **The Challenge:** In high-volume commercial motorcycle rental and Rent-to-Buy dealerships, GPS telematics hardware represents both the primary theft-recovery safeguard and a recurring SaaS operating expense (300+ cellular subscriptions). Early iterations suffered from operational friction: customer-owned trackers caused monitoring noise, redundant backup trackers triggered false offline alarms even when a primary company device was communicating, idle shop/workshop bikes flagged spurious subscription warnings, and paid-off instalment motorbikes kept burning subscription fees while awaiting final V5C title transfer or pending unrelated traffic fines (PCNs). Simultaneously, operators manually messaged support to activate plans, update licence plates, or salvage unused subscription days onto expiring active deals.
 * **The Architectural Solution:**
-  1. **Strict Decoupling of Contract Intent & Physical Asset State Machine (`MotoStatus.FINANCED` vs `MotoStatus.SOLD`)**: Replaced implicit assumptions with explicit domain state modeling. When a Rent-to-Buy agreement reaches zero balance, the vehicle only transitions to `Sold` upon definitive title transfer. While financed, company hardware remains protected without generating spurious removal alarms.
-  2. **Real-Time GPSLive Integration, Smart Multi-Tracker Ranking & State Duration Analytics (`rewire_service.py`)**: Built a thread-safe REST client (`_DEVICES_CACHE` 30s TTL, `_SUBSCRIPTIONS_CACHE` 60s TTL) inspecting satellite coordinates, vehicle battery (`accv`), tracker backup battery (`batv`/`batp`), paid subscription expiry, reverse-geocoded UK street addresses, and **elapsed state duration** (`objectData.activityTime` — e.g., exact hours/days parked or moving, guarded against conflicting live movement speed), accessible via compact plate-aligned `📍 Live` triggers shown conditionally only when compatible telematics hardware is installed.
-  3. **Automated Rewire Fleet Health & Subscription Waste Audit (`GET /api/rewire/fleet-audit`)**: Cross-references all cloud-registered GPS devices against local fleet assets (`Motorcycle`), hardware inventory (`MotorcycleTracker`), and contracts (`Contract`) to surface: (a) **active motorcycles offline $\ge X$ days** with automated root-cause hints and alternate-tracker indicators, (b) **wasted paid subscriptions** broken down across `Sold` motorbikes, `In_Stock` drawer units, and dormant orphans, and (c) **active renewals due within 7 days**—complemented by autonomous SORN/uninsured movement and `pwrcut` anti-tamper alerts with 60-minute debounce.
-  4. **Universal Tracker Removal Rule, Multi-Table Isolation & Reversible Deposit Lifecycle**: Preserved multi-table SQLAlchemy query isolation (`PropComparator.any`) across 8 interactive fleet KPI pills, alongside deterministic rental lifecycle date tracking (**Start Date**, **Return Date**, and persisted **Deposit Refund Date** via `Contract.data_devolucao_deposito`) with safe return undo recovery (`reverter-devolucao` + `CONTRACT_REOPENED` audit trail).
+  1. **Strict Ownership Isolation (`Company` vs `Customer`) & Idle/Brand Exemptions**: Strictly separates company-owned protection assets (`Company`) from private client trackers (`Customer`), keeping customer hardware strictly informational while isolating all live telemetry triggers, tamper/SORN watches, and fleet audits to `Company` units. Shop/idle inventory (`Available`, `Maintenance`, `Pound`) and non-API third-party `Company` trackers (`Spartan`/`Other`) remain cleanly exempt from false telemetry alarms.
+  2. **Multi-Tracker Priority, Immediate Uncovered Alerts & Paid-Off Recycling (`is_sale_installment_paid_off`)**: On active rentals (`Rent`) and unpaid hire-purchase (`Sale_Installment`), >= 1 communicating active `Company` tracker satisfies fleet coverage (suppressing noise from backup trackers), whereas 0 active subscriptions trigger immediate critical alerts regardless of offline duration thresholds. Crucially, the instalment payoff engine evaluates vehicle purchase transactions while explicitly ignoring pending or future `Fine`/`Damage` lines—immediately unlocking paid-off motorcycles for subscription cancellation & remaining-credit recovery while keeping physical tracker removal alerts bound unconditionally to `Sold` titles.
+  3. **Real-Time GPSLive Integration & Fleet Subscription Audit (`rewire_service.py`)**: Thread-safe REST client (`_DEVICES_CACHE` 30s TTL, `_SUBSCRIPTIONS_CACHE` 60s TTL) surfacing satellite coordinates, vehicle/backup battery health, paid status, UK reverse-geocoded addresses, state elapsed durations (`objectData.activityTime`), uncovered deals, wasted subscriptions (`sold_bike`, `paid_off_bike`, `in_stock`, `dormant_orphan`), and 7-day expiring renewals via compact plate-aligned `📍 Live` pills and `/api/rewire/fleet-audit`.
+  4. **1-Click Support WhatsApp Workflows, Pending Lock & Reversible Deposit Lifecycle (`RewireActionRequest`)**: Integrated a global 1-click confirmation modal (`rewire_action_modal.html`) with live Evolution API dispatch (`wa.me` fallback), pending request reconciliation (`⏳ Awaiting Confirmation` auto-cleared once confirmed by the telematics API), and nearest-expiry active fleet candidate ranking when transferring unused subscription credit upon payoff, disposal, or stock return—paired with deterministic rental lifecycle date auditing (`Contract.data_devolucao_deposito`) and reversible check-in recovery.
 
 ---
 
 ## 🗄️ 3. Relational Database Architecture (PostgreSQL 14 Schema)
 
-The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, comprising **15 normalized tables** with strict foreign-key integrity and composite B-tree indexing:
+The persistence layer is modeled in **SQLAlchemy 2.0** over **PostgreSQL 14**, comprising **16 normalized tables** with strict foreign-key integrity and composite B-tree indexing:
 
 | Domain | Core Tables | Key Engineering Features |
 | :--- | :--- | :--- |
-| **Fleet & Statutory Assets** | `motos`, `motos_v5c`, `motos_rastreadores` | Tracks registration plate (`placa`), VIN (`chassi`), purchase cost, `tax_sorn` DVLA flag, `vencimento_mot`, `vencimento_tax`, multi-page V5C logbooks, native lifecycle states (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`), and GPS tracker serial history with universal recovery rules. |
+| **Fleet & Statutory Assets** | `motos`, `motos_v5c`, `motos_rastreadores`, `rewire_action_requests` | Tracks registration plate (`placa`), VIN (`chassi`), purchase cost, `tax_sorn` DVLA flag, `vencimento_mot`, `vencimento_tax`, multi-page V5C logbooks, native lifecycle states (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`), GPS tracker ownership/history, and pending telematics subscription requests with API auto-confirmation. |
 | **CRM & KYC Compliance** | `clientes`, `anexos_cliente` | Stores UK driving licence numbers, CBT expiry dates, masked PII fields, bi-weekly `askMID` verification counters, and WhatsApp silencing flags. |
 | **Agreements & e-Signing** | `contratos`, `anexos_contrato` | Supports `Rent`, `Sale_Installment`, `Sale_Cash`, and `Purchase` types, cryptographic signing tokens, forensic IP/User-Agent stamps, and `Deposit_Hold` quarantine timestamps. |
 | **FinTech Ledger** | `financeiro` | Bi-directional ledger (`Receita` / `Despesa`), self-referential `transacao_origem_id` for partial payment child splits (`⚡ Bal #ID`), PCN fine recharges, and per-charge snooze dates. |
