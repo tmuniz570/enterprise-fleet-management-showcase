@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.162)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.163)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **162+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **163+ iterative production releases**.
 
 </div>
 
@@ -34,9 +34,9 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | :--- | :--- | :--- |
 | **Active Commercial Scale** | **200+ Fleet Vehicles** | Real-time lifecycle tracking (`Available`, `Rented`, `Financed`, `Maintenance`, `Pound`, `Claim`, `Sold`, `Decommissioned`) |
 | **Live GPS Telematics** | **300+ Cloud Trackers Audited** | Rewire GPSLive REST v1 full device catalog, 12V/backup voltage telemetry, unsubscribed vs paid-but-offline triage, anti-tamper/SORN alerts & CSV/PDF reporting |
-| **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
+| **Internal API Latency & SQL** | **Zero N+1 (16 queries on 50 contracts)** | Batch V5C/transfer cycle preloading, SQLAlchemy `selectinload`/`joinedload` eager loading, calibrated `pool_size=4, max_overflow=4`, composite B-tree indexes, and 07:45 AM RAM warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.162 (162+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints), mandatory Pre-Delivery Compliance (Vehicle Docs/Tax/MOT & Company GPS Tracker), hardened UK GDPR/security controls, and zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Production Maturity** | **v1.9.163 (163+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints), mandatory Pre-Delivery Compliance, hardened UK GDPR/security controls, real-time SQL performance tuning, and zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
 | **Automated Test Coverage** | **65 Test Suites** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp/Telematics gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
