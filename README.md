@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.161)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Live_Commercial_Production_(v1.9.162)-success?style=for-the-badge&logo=statuspage&logoColor=white)](#)
 [![Cloud](https://img.shields.io/badge/Cloud-Google_Cloud_Platform_(GCP)-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](#)
 [![AI Engine](https://img.shields.io/badge/AI_Copilot-Google_Gemini_3.5_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
@@ -16,7 +16,7 @@
 
 > 🔒 **Commercial Production Notice for Recruiters & Engineering Hiring Managers**  
 > This repository is an **Architectural Case Study & Systems Engineering Showcase** of a proprietary Vertical SaaS / ERP platform operating in live daily commercial production in **Birmingham, United Kingdom**.  
-> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **161+ iterative production releases**.
+> Designed, architected, deployed, and maintained end-to-end by **[Thiago Brandão](https://linkedin.com/in/tmuniz570)** across **162+ iterative production releases**.
 
 </div>
 
@@ -36,7 +36,7 @@ This platform is a **custom-engineered, full-stack Enterprise Resource Planning 
 | **Live GPS Telematics** | **300+ Cloud Trackers Audited** | Rewire GPSLive REST v1 full device catalog, 12V/backup voltage telemetry, unsubscribed vs paid-but-offline triage, anti-tamper/SORN alerts & CSV/PDF reporting |
 | **Internal API Latency** | **~3.9ms P50 / <100ms Cold** | SQLAlchemy `joinedload` eager loading, composite B-tree indexes, and 07:45 AM RAM buffer warm-up |
 | **Edge IoT Gatekeeper Latency** | **<15ms Edge Push Streaming** | Hikvision ISAPI `alertStream` continuous socket, offline FIFO queue, and Windows System Tray daemon |
-| **Production Maturity** | **v1.9.161 (161+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints), mandatory Pre-Delivery Compliance (Vehicle Docs/Tax/MOT & Company GPS Tracker), and zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
+| **Production Maturity** | **v1.9.162 (162+ Releases)** | Domain-driven modular architecture (11 Flask Blueprints), mandatory Pre-Delivery Compliance (Vehicle Docs/Tax/MOT & Company GPS Tracker), hardened UK GDPR/security controls, and zero-downtime Git Hook CI/CD to GCP (`systemd` + Gunicorn) |
 | **Automated Test Coverage** | **65 Test Suites** | Isolated ephemeral DB runner (`run_tests.py`) with mocked AI/WhatsApp/Telematics gateways (Zero-Token CI testing) |
 | **Media Bandwidth Savings** | **~85% Payload Reduction** | Client-side HTML5 Canvas + Web Worker conversion to WebP prior to mobile 4G/5G upload |
 | **AI Copilot Architecture** | **6+1 Multi-Turn Agent** | 12 specialized tools, AST-sandboxed Text-to-SQL (`SELECT`/`WITH`), Multimodal Vision OCR, and PII masking |
@@ -204,7 +204,7 @@ flowchart LR
 * **The Challenge:** Cloud VMs experience I/O latency spikes on the first morning queries when PostgreSQL buffer caches are cold, while public IPv4 endpoints face relentless automated vulnerability scanning (`.env`, `.git`, `/wp-admin`, `/owa`, botnet User-Agents).
 * **The Architectural Solution:**
   * **Kernel & Buffer Tuning + 07:45 AM Autonomous Warm-Up (`run_morning_system_warmup`)**: Configured Linux kernel `vm.swappiness = 10` on Ubuntu 22.04 LTS (GCP Kernel 6.8) and scheduled a 07:45 AM worker that pre-warms SQLAlchemy connection pools and loads active motorcycles, contracts, and pending financial ledgers into PostgreSQL `shared_buffers` 15 minutes before automated WhatsApp jobs and 75 minutes before store opening—delivering **~3.9ms internal API latency**.
-  * **Dual-Layer Scanner Shield (Nginx + Flask)**: Nginx immediately drops malicious scanning User-Agents (`masscan`, `zgrab`, `nikto`, `sqlmap`) with `403 Forbidden` and returns sub-millisecond silent `404 Not Found` (`access_log off`) for exploit probe paths. At the application layer, Flask verifies `request.endpoint is not None` before triggering `@login_required` redirects, ensuring unrecognized bot URLs receive an instant `404` instead of flooding `/login`.
+  * **Dual-Layer Scanner Shield, Access Log Redaction & UK GDPR Hardening (Nginx + Gunicorn + Flask)**: Nginx immediately drops malicious scanning User-Agents (`masscan`, `zgrab`, `nikto`, `sqlmap`) with `403 Forbidden` and returns sub-millisecond silent `404 Not Found` (`access_log off`) for exploit probe paths. At the application/WSGI layer, Flask enforces CSRF, `Permissions-Policy`, `/JavaScript` + `/Launch` PDF active-content filtering, header-based LPR/cron auth (`X-LPR-Token`, `X-Cron-Key`), granular LPR RBAC (`pode_admin` vs `pode_alugueis`), expired signing-link PII minimization, backup secret exclusion (`.env`/`.key`/`.pem` excluded from `.zip` snapshots), and `RedactingGunicornLogger` URI token masking.
   * **Forensic Authentication & B-Tree Audit Trail (`AuditLog`)**: Captures real client IP, OS, Browser, Device Type, and Language across all `LOGIN_SUCCESS`, `LOGIN_FAILED` (with 10-attempt account lockout protection), `LOGOUT`, and `SESSION_EXPIRED` events. Every state change across the ERP automatically extracts and indexes `placa` (with alphanumeric regex validation preventing system message false positives), `id_contrato`, and `cliente_nome` for sub-millisecond forensic filtering and 1-click CSV export.
 
 ---
